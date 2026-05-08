@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cycle Counter</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="hero">
+      <p class="eyebrow">private cycle memo</p>
+      <h1>Cycle Counter</h1>
+      <p class="lead">広告なし。必要なことだけ見る、ふたり用のやさしい周期メモ。</p>
+    </header>
+
+    <section class="card overview">
+      <div class="stat big">
+        <span>次の生理予定</span>
+        <strong id="nextPeriod">--</strong>
+        <small id="nextRange">--</small>
+      </div>
+      <div class="stat">
+        <span>排卵予測</span>
+        <strong id="ovulation">--</strong>
+      </div>
+      <div class="stat weather">
+        <span>メンタル天気予報</span>
+        <strong id="mentalWeather">--</strong>
+        <small id="weatherNote">--</small>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="calendar-head">
+        <button id="prevMonth">‹</button>
+        <h2 id="monthLabel">--</h2>
+        <button id="nextMonth">›</button>
+      </div>
+
+      <div class="legend">
+        <span><i class="dot period"></i>生理</span>
+        <span><i class="dot predicted"></i>予測</span>
+        <span><i class="dot ovulation"></i>排卵</span>
+        <span><i class="dot fertile"></i>妊娠可能性</span>
+        <span><i class="dot symptom"></i>症状</span>
+      </div>
+
+      <div class="weekdays">
+        <span>日</span><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span>土</span>
+      </div>
+      <div id="calendar" class="calendar"></div>
+    </section>
+
+    <section class="card">
+      <h2>ワンタップ記録</h2>
+      <p class="hint">カレンダーの日付をタップすると、過去日にも記録できるよ。</p>
+      <p class="selected">選択中：<strong id="selectedLabel">今日</strong></p>
+
+      <button id="periodToggle" class="main-btn">🩸 生理を記録/解除</button>
+
+      <h3>症状</h3>
+      <div class="symptoms">
+        <button data-symptom="頭痛">🤕 頭痛</button>
+        <button data-symptom="腹痛">😣 腹痛</button>
+        <button data-symptom="眠気">😴 眠気</button>
+        <button data-symptom="吐き気">🤢 吐き気</button>
+        <button data-symptom="胸の張り">🫧 胸の張り</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>選択日の記録</h2>
+      <div id="dayDetail" class="day-detail">--</div>
+    </section>
+
+    <section class="card">
+      <h2>周期メモ</h2>
+      <div id="stats" class="stats"></div>
+      <button id="resetSeed" class="ghost">初期データに戻す</button>
+    </section>
+
+    <section class="card note">
+      <p>※ 排卵日・妊娠可能性・メンタル天気予報は、記録された周期からの簡易予測です。避妊や妊娠判断、医療判断には使わないでね。</p>
+    </section>
+  </div>
+
+<script src="app.js"></script>
+</body>
+</html>
