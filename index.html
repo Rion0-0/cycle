@@ -8,10 +8,13 @@
 </head>
 <body>
   <div class="app">
+
     <header class="hero">
       <p class="eyebrow">private cycle memo</p>
       <h1>Cycle Counter</h1>
-      <p class="lead">広告なし。必要なことだけ見る、ふたり用のやさしい周期メモ。</p>
+      <p class="lead">
+        広告なし。必要なことだけ見る、ふたり用のやさしい周期メモ。
+      </p>
     </header>
 
     <section class="card overview">
@@ -20,10 +23,12 @@
         <strong id="nextPeriod">--</strong>
         <small id="nextRange">--</small>
       </div>
+
       <div class="stat">
         <span>排卵予測</span>
         <strong id="ovulation">--</strong>
       </div>
+
       <div class="stat weather">
         <span>メンタル天気予報</span>
         <strong id="mentalWeather">--</strong>
@@ -44,22 +49,43 @@
         <span><i class="dot ovulation"></i>排卵</span>
         <span><i class="dot fertile"></i>妊娠可能性</span>
         <span><i class="dot symptom"></i>症状</span>
+        <span><i class="dot watch"></i>Watch</span>
       </div>
 
       <div class="weekdays">
-        <span>日</span><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span>土</span>
+        <span>日</span><span>月</span><span>火</span>
+        <span>水</span><span>木</span><span>金</span><span>土</span>
       </div>
+
       <div id="calendar" class="calendar"></div>
     </section>
 
     <section class="card">
-      <h2>ワンタップ記録</h2>
-      <p class="hint">カレンダーの日付をタップすると、過去日にも記録できるよ。</p>
-      <p class="selected">選択中：<strong id="selectedLabel">今日</strong></p>
+      <h2>未来予測</h2>
+      <p class="hint">
+        平均周期から、先の生理予定・排卵予測・妊娠可能性の目安を出すよ。
+      </p>
 
-      <button id="periodToggle" class="main-btn">🩸 生理を記録/解除</button>
+      <div id="futureList" class="future-list"></div>
+    </section>
+
+    <section class="card">
+      <h2>ワンタップ記録</h2>
+
+      <p class="hint">
+        カレンダーの日付をタップすると、過去日にも記録できるよ。
+      </p>
+
+      <p class="selected">
+        選択中：<strong id="selectedLabel">今日</strong>
+      </p>
+
+      <button id="periodToggle" class="main-btn">
+        🩸 生理を記録/解除
+      </button>
 
       <h3>症状</h3>
+
       <div class="symptoms">
         <button data-symptom="頭痛">🤕 頭痛</button>
         <button data-symptom="腹痛">😣 腹痛</button>
@@ -70,21 +96,55 @@
     </section>
 
     <section class="card">
+      <h2>Apple Watch / ヘルスケア貼り付け</h2>
+
+      <p class="hint">
+        ショートカットで作った今日の体調まとめを貼って保存。
+      </p>
+
+      <textarea
+        id="watchInput"
+        placeholder="例：
+睡眠: 5.5
+歩数: 3200
+心拍: 82
+メモ: ちょっとだるい"
+      ></textarea>
+
+      <div class="button-row">
+        <button id="pasteWatch" class="main-btn small">
+          クリップボードから貼る
+        </button>
+
+        <button id="saveWatch" class="main-btn small">
+          選択日に保存
+        </button>
+      </div>
+    </section>
+
+    <section class="card">
       <h2>選択日の記録</h2>
       <div id="dayDetail" class="day-detail">--</div>
     </section>
 
     <section class="card">
       <h2>周期メモ</h2>
+
       <div id="stats" class="stats"></div>
-      <button id="resetSeed" class="ghost">初期データに戻す</button>
+
+      <button id="resetSeed" class="ghost">
+        初期データに戻す
+      </button>
     </section>
 
     <section class="card note">
-      <p>※ 排卵日・妊娠可能性・メンタル天気予報は、記録された周期からの簡易予測です。避妊や妊娠判断、医療判断には使わないでね。</p>
+      <p>
+        ※ 排卵日・妊娠可能性・メンタル天気予報は簡易予測です。
+      </p>
     </section>
+
   </div>
 
-<script src="app.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
