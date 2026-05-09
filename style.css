@@ -229,3 +229,20 @@ h1{
   h1{font-size:36px}
   .day{min-height:48px;border-radius:14px}
 }
+
+.future-item{
+  background:#fff;
+  border-radius:18px;
+  padding:16px;
+  margin-top:12px;
+  line-height:1.8;
+  box-shadow:0 4px 10px rgba(0,0,0,.05);
+}
+
+.watch-box{
+  margin-top:14px;
+  padding:12px;
+  border-radius:14px;
+  background:#f5f8ff;
+  line-height:1.8;
+}
