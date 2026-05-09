@@ -1,6 +1,7 @@
 const SEED_PERIODS = [
-  "2025-05-14","2025-06-18","2025-07-21","2025-08-23","2025-09-25",
-  "2025-10-23","2025-11-24","2025-12-29","2026-02-04","2026-03-10","2026-04-07"
+  "2025-05-14","2025-06-18","2025-07-21","2025-08-23",
+  "2025-09-25","2025-10-23","2025-11-24","2025-12-29",
+  "2026-02-04","2026-03-10","2026-04-07"
 ];
 
 const SEED_LENGTHS = {
@@ -17,9 +18,9 @@ const SEED_LENGTHS = {
   "2026-04-07":6
 };
 
+const VARIANCE = 4;
 const DEFAULT_CYCLE = 33;
 const DEFAULT_PERIOD = 6;
-const VARIANCE = 4;
 
 const pad = n => String(n).padStart(2,"0");
 
@@ -169,7 +170,7 @@ function avgPeriod(){
 
   const vals =
     Object.values(getLengths())
-    .filter(n => Number(n) > 0);
+    .filter(v=>v>0);
 
   return avg(vals,DEFAULT_PERIOD);
 }
@@ -183,25 +184,21 @@ function lastStart(){
     : null;
 }
 
-function basePredictionFrom(startDate,n=0){
+function predictionFrom(start,n=0){
 
   const cycle = avgCycle();
   const period = avgPeriod();
 
   const next =
-    addDays(startDate,cycle*(n+1));
-
-  const ovulation =
-    addDays(next,-14);
+    addDays(start, cycle*(n+1));
 
   return {
     next,
     nextEnd:addDays(next,period-1),
-    ovulation,
-    fertileStart:addDays(ovulation,-5),
-    fertileEnd:addDays(ovulation,1),
-    pmsStart:addDays(next,-7),
-    cycle
+    ovulation:addDays(next,-14),
+    fertileStart:addDays(next,-19),
+    fertileEnd:addDays(next,-13),
+    pmsStart:addDays(next,-7)
   };
 }
 
@@ -209,115 +206,56 @@ function predictions(){
 
   const last = lastStart();
 
-  if(!last) return null;
+  if(!last) return [];
 
-  return {
-    last,
-    ...basePredictionFrom(last,0)
-  };
-}
+  const arr = [];
 
-function parseWatchText(text){
-
-  const data = {};
-
-  const lines =
-    text
-    .split(/\n|,/)
-    .map(x=>x.trim())
-    .filter(Boolean);
-
-  for(const line of lines){
-
-    const normalized =
-      line.replace(/[：=]/g,":");
-
-    const [k,...rest] =
-      normalized.split(":");
-
-    const key = (k||"").trim();
-
-    const val =
-      rest.join(":").trim();
-
-    const num =
-      Number(
-        (val.match(/-?\d+(\.\d+)?/) || [])[0]
-      );
-
-    if(/睡眠/i.test(key)){
-      data.sleep = num;
-    }
-
-    else if(/歩数/i.test(key)){
-      data.steps = num;
-    }
-
-    else if(/心拍/i.test(key)){
-      data.heartRate = num;
-    }
-
-    else if(/温度/i.test(key)){
-      data.temp = num;
-    }
+  for(let i=0;i<6;i++){
+    arr.push(predictionFrom(last,i));
   }
 
-  return data;
+  return arr;
 }
 
-function mentalWeatherFor(date){
+function mentalWeather(date){
 
-  const p = predictions();
+  const preds = predictions();
 
-  if(!p){
-    return {
-      icon:"🌤️",
-      title:"くもり晴れ",
-      note:"記録が増えるほど予報が育つよ"
-    };
-  }
-
-  const starts = getStarts();
-  const lengths = getLengths();
-
-  for(const s of starts){
-
-    const start = fromKey(s);
-
-    const len =
-      lengths[s] || avgPeriod();
+  for(const p of preds){
 
     if(
-      date >= start &&
-      date <= addDays(start,len-1)
+      date >= p.pmsStart &&
+      date < p.next
+    ){
+      return {
+        icon:"⛈️",
+        text:"雷雨注意",
+        note:"PMS期間。情緒ゆらぎ注意"
+      };
+    }
+
+    if(
+      date >= p.next &&
+      date <= p.nextEnd
     ){
       return {
         icon:"🌧️",
-        title:"雨",
-        note:"生理中。無理しすぎ注意"
+        text:"雨",
+        note:"生理期間。無理しすぎ注意"
       };
     }
   }
 
-  if(date >= p.pmsStart && date < p.next){
-
-    return {
-      icon:"⛈️",
-      title:"雷雨注意",
-      note:"PMS期間。情緒ゆらぎ注意"
-    };
-  }
-
   return {
     icon:"☀️",
-    title:"晴れ",
+    text:"晴れ",
     note:"比較的安定しやすい日"
   };
 }
 
 function renderSummary(){
 
-  const p = predictions();
+  const p = predictions()[0];
 
   if(!p) return;
 
@@ -338,96 +276,17 @@ function renderSummary(){
     jp(p.ovulation);
 
   const w =
-    mentalWeatherFor(new Date());
+    mentalWeather(new Date());
 
   document.getElementById(
     "mentalWeather"
   ).textContent =
-    `${w.icon} ${w.title}`;
+    `${w.icon} ${w.text}`;
 
   document.getElementById(
     "weatherNote"
   ).textContent =
     w.note;
-}
-
-function renderFuture(){
-
-  const last = lastStart();
-
-  const box =
-    document.getElementById("futureList");
-
-  if(!last){
-    box.innerHTML = "まだ予測できないよ";
-    return;
-  }
-
-  const weatherList = [
-    "☀️ 比較的安定",
-    "🌤️ ゆるやかモード",
-    "🌦️ 変わりやすい",
-    "⛈️ PMS注意"
-  ];
-
-  const items = [];
-
-  for(let i=0;i<6;i++){
-
-    const p =
-      basePredictionFrom(last,i);
-
-    const monthName =
-      `${p.next.getFullYear()}年
-      ${p.next.getMonth()+1}月`;
-
-    const weather =
-      weatherList[
-        Math.min(
-          3,
-          Math.floor(
-            Math.random()*3 +
-            (i % 2)
-          )
-        )
-      ];
-
-    items.push(`
-      <div class="future-item">
-
-        <strong>${monthName}</strong>
-
-        <small>
-
-          🩸 生理予定：
-          ${jp(addDays(p.next,-VARIANCE))}
-          〜
-          ${jp(addDays(p.next,VARIANCE))}
-
-          <br><br>
-
-          🥚 排卵予測：
-          ${jp(p.ovulation)}
-
-          <br><br>
-
-          💞 妊娠可能性：
-          ${jp(p.fertileStart)}
-          〜
-          ${jp(p.fertileEnd)}
-
-          <br><br>
-
-          🌙 メンタル天気：
-          ${weather}
-
-        </small>
-
-      </div>
-    `);
-  }
-
-  box.innerHTML = items.join("");
 }
 
 function renderCalendar(){
@@ -452,11 +311,9 @@ function renderCalendar(){
     cal.appendChild(document.createElement("div"));
   }
 
-  const starts = getStarts();
-  const lengths = getLengths();
   const symptoms = getSymptoms();
-
-  const p = predictions();
+  const watch = getWatch();
+  const preds = predictions();
 
   for(let day=1;day<=last.getDate();day++){
 
@@ -467,62 +324,42 @@ function renderCalendar(){
 
     let cls = "day";
 
-    let marks = [];
-
-    for(const s of starts){
-
-      const start = fromKey(s);
-
-      const len =
-        lengths[s] || avgPeriod();
+    for(const p of preds){
 
       if(
-        date >= start &&
-        date <= addDays(start,len-1)
+        date >= p.next &&
+        date <= p.nextEnd
       ){
-        cls += " period";
-        marks.push("🩸");
+        cls += " predicted";
+      }
+
+      if(
+        date >= p.fertileStart &&
+        date <= p.fertileEnd
+      ){
+        cls += " fertile";
+      }
+
+      if(
+        key === toKey(p.ovulation)
+      ){
+        cls += " ovulation";
+      }
+
+      if(
+        date >= p.pmsStart &&
+        date < p.next
+      ){
+        cls += " pms";
       }
     }
 
-    for(let i=0;i<6;i++){
-
-  const fp =
-    basePredictionFrom(
-      lastStart(),
-      i
-    );
-
-  if(
-    date >= fp.next &&
-    date <= fp.nextEnd
-  ){
-    cls += " predicted";
-  }
-
-  if(
-    date >= fp.fertileStart &&
-    date <= fp.fertileEnd
-  ){
-    cls += " fertile";
-  }
-
-  if(
-    key === toKey(fp.ovulation)
-  ){
-    cls += " ovulation";
-  }
-
-  if(
-    date >= fp.pmsStart &&
-    date < fp.next
-  ){
-    cls += " pms";
-  }
-}
-
     if(symptoms[key]?.length){
       cls += " has-symptom";
+    }
+
+    if(watch[key]){
+      cls += " has-watch";
     }
 
     if(key === selectedKey){
@@ -537,7 +374,6 @@ function renderCalendar(){
     div.innerHTML = `
       <button data-date="${key}">
         <div class="num">${day}</div>
-        <div class="marks">${marks.join(" ")}</div>
       </button>
     `;
 
@@ -556,21 +392,26 @@ function renderCalendar(){
       render();
     });
   });
+
+  document.getElementById(
+    "selectedLabel"
+  ).textContent =
+    selectedKey.replaceAll("-","/");
 }
 
 function renderSelected(){
-
-  const date =
-    fromKey(selectedKey);
-
-  const w =
-    mentalWeatherFor(date);
 
   const symptoms =
     getSymptoms()[selectedKey] || [];
 
   const watch =
     getWatch()[selectedKey];
+
+  const date =
+    fromKey(selectedKey);
+
+  const w =
+    mentalWeather(date);
 
   let watchHtml = "";
 
@@ -607,8 +448,8 @@ function renderSelected(){
 
     <strong>
       ${jp(date)}
-      のメンタル天気：
-      ${w.icon} ${w.title}
+      ${w.icon}
+      ${w.text}
     </strong>
 
     <br><br>
@@ -630,8 +471,6 @@ function renderSelected(){
 
 function renderStats(){
 
-  const diffs = cycleDiffs();
-
   document.getElementById(
     "stats"
   ).innerHTML = `
@@ -646,8 +485,8 @@ function renderStats(){
 
     <br>
 
-    記録周期数：
-    ${diffs.length}
+    記録数：
+    ${getStarts().length}件
   `;
 }
 
@@ -660,9 +499,7 @@ function togglePeriod(){
   if(starts.includes(selectedKey)){
 
     starts =
-      starts.filter(
-        s=>s!==selectedKey
-      );
+      starts.filter(s=>s!==selectedKey);
 
     delete lengths[selectedKey];
   }
@@ -683,7 +520,8 @@ function togglePeriod(){
 
 function toggleSymptom(symptom){
 
-  const symptoms = getSymptoms();
+  const symptoms =
+    getSymptoms();
 
   if(!symptoms[selectedKey]){
     symptoms[selectedKey] = [];
@@ -703,13 +541,55 @@ function toggleSymptom(symptom){
     .push(symptom);
   }
 
-  if(!symptoms[selectedKey].length){
-    delete symptoms[selectedKey];
-  }
-
   setSymptoms(symptoms);
 
   render();
+}
+
+function parseWatchText(text){
+
+  const data = {};
+
+  const lines =
+    text
+    .split(/\n|,/)
+    .map(v=>v.trim())
+    .filter(Boolean);
+
+  for(const line of lines){
+
+    const normalized =
+      line.replace(/[：=]/g,":");
+
+    const [k,...rest] =
+      normalized.split(":");
+
+    const val =
+      rest.join(":").trim();
+
+    const num =
+      Number(
+        (val.match(/-?\d+(\.\d+)?/) || [])[0]
+      );
+
+    if(/温度/.test(k)){
+      data.temp = num;
+    }
+
+    if(/心拍/.test(k)){
+      data.heartRate = num;
+    }
+
+    if(/歩数/.test(k)){
+      data.steps = num;
+    }
+
+    if(/睡眠/.test(k)){
+      data.sleep = num;
+    }
+  }
+
+  return data;
 }
 
 async function pasteWatch(){
@@ -727,7 +607,7 @@ async function pasteWatch(){
   catch(e){
 
     alert(
-      "貼り付け許可が必要かも！"
+      "Safariで貼り付け許可が必要かも！"
     );
   }
 }
@@ -744,7 +624,8 @@ function saveWatch(){
     return;
   }
 
-  const watch = getWatch();
+  const watch =
+    getWatch();
 
   watch[selectedKey] =
     parseWatchText(text);
@@ -757,7 +638,6 @@ function saveWatch(){
 function render(){
 
   renderSummary();
-  renderFuture();
   renderCalendar();
   renderSelected();
   renderStats();
@@ -828,29 +708,9 @@ document
 
   if(confirm("初期データに戻す？")){
 
-    localStorage.setItem(
-      "periodStarts",
-      JSON.stringify(SEED_PERIODS)
-    );
+    localStorage.clear();
 
-    localStorage.setItem(
-      "periodLengths",
-      JSON.stringify(SEED_LENGTHS)
-    );
-
-    localStorage.setItem(
-      "symptoms",
-      JSON.stringify({})
-    );
-
-    localStorage.setItem(
-      "watchData",
-      JSON.stringify({})
-    );
-
-    selectedKey =
-      toKey(new Date());
-
+    init();
     render();
   }
 });
