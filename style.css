@@ -555,3 +555,43 @@ textarea{
     border-radius:18px;
   }
 }
+@media(max-width:700px){
+
+  .app{
+    width:100%;
+    padding:18px 14px;
+    overflow-x:hidden;
+  }
+
+  .card{
+    width:100%;
+    padding:18px;
+    border-radius:28px;
+  }
+
+  .calendar{
+    gap:6px;
+  }
+
+  .day{
+    min-width:0;
+    width:100%;
+    aspect-ratio:1 / 1;
+    padding:6px;
+    border-radius:16px;
+    font-size:16px;
+  }
+
+  .day-number{
+    font-size:16px;
+  }
+
+  .legend{
+    gap:10px 14px;
+    font-size:14px;
+  }
+
+  .weekdays{
+    font-size:14px;
+  }
+}
