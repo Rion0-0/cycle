@@ -260,7 +260,7 @@ h1{
 }
 
 .day.pms button{
-  border:2px dashed #d8d0dc;
+  background:#f8f4fa;
 }
 
 .day.has-watch button::after{
