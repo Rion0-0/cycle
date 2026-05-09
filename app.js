@@ -717,3 +717,28 @@ document
 
 init();
 render();
+async function syncToCloud(){
+
+  const data = {
+
+    periodStarts:getStarts(),
+    periodLengths:getLengths(),
+    symptoms:getSymptoms(),
+    watchData:getWatch()
+
+  };
+
+  await firebaseFns.setDoc(
+
+    firebaseFns.doc(
+      db,
+      "cycles",
+      "shared"
+    ),
+
+    data
+
+  );
+
+  console.log("同期完了☁️");
+}
