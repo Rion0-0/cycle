@@ -656,7 +656,40 @@ ${
 
   `;
 }
+/* =========================
+   stats
+========================= */
 
+function renderStats(){
+
+  const stats =
+    document.getElementById(
+      "stats"
+    );
+
+  if(!stats){
+    return;
+  }
+
+  stats.innerHTML = `
+
+    <p>
+      平均周期：
+      ${avgCycle()}日
+    </p>
+
+    <p>
+      平均生理期間：
+      ${avgPeriod()}日
+    </p>
+
+    <p>
+      記録回数：
+      ${getStarts().length}回
+    </p>
+
+  `;
+}
 /* =========================
    actions
 ========================= */
