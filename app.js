@@ -501,12 +501,15 @@ async function syncToCloud(){
 
   const data = {
 
-    periodStarts:getStarts(),
-    periodLengths:getLengths(),
-    symptoms:getSymptoms(),
-    watchData:getWatch()
+  periodStarts:getStarts(),
+  periodLengths:getLengths(),
+  symptoms:getSymptoms(),
+  watchData:getWatch(),
 
-  };
+  updatedAt:
+    new Date().toISOString()
+
+};
 
   try{
 
