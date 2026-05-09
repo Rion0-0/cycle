@@ -694,38 +694,48 @@ function renderStats(){
    actions
 ========================= */
 
-function togglePeriod(){
+function markPeriodStart(){
+  let starts = getStarts();
+  const lengths = getLengths();
 
-  let starts =
-    getStarts();
-
-  const lengths =
-    getLengths();
-
-  if(starts.includes(selectedKey)){
-
-    starts =
-      starts.filter(
-        s=>s!==selectedKey
-      );
-
-    delete lengths[selectedKey];
-  }
-
-  else{
-
+  if(!starts.includes(selectedKey)){
     starts.push(selectedKey);
-
-    lengths[selectedKey] =
-      avgPeriod();
+    lengths[selectedKey] = avgPeriod();
   }
 
   setStarts(starts);
+  setLengths(lengths);
+
+  syncToCloud();
+  render();
+}
+
+function markPeriodEnd(){
+  const starts = getStarts().sort();
+
+  if(!starts.length){
+    alert("先に生理開始日を記録してね！");
+    return;
+  }
+
+  const lastStart = starts[starts.length - 1];
+  const startDate = fromKey(lastStart);
+  const endDate = fromKey(selectedKey);
+
+  if(endDate < startDate){
+    alert("終了日は開始日より後の日付を選んでね！");
+    return;
+  }
+
+  const length =
+    Math.round((endDate - startDate) / 86400000) + 1;
+
+  const lengths = getLengths();
+  lengths[lastStart] = length;
 
   setLengths(lengths);
 
   syncToCloud();
-
   render();
 }
 
@@ -841,15 +851,18 @@ if(nextBtn){
   };
 }
 
-const periodBtn =
-  document.getElementById(
-    "periodToggle"
-  );
+const periodStartBtn =
+  document.getElementById("periodStartBtn");
 
-if(periodBtn){
+if(periodStartBtn){
+  periodStartBtn.onclick = markPeriodStart;
+}
 
-  periodBtn.onclick =
-    togglePeriod;
+const periodEndBtn =
+  document.getElementById("periodEndBtn");
+
+if(periodEndBtn){
+  periodEndBtn.onclick = markPeriodEnd;
 }
 
 document
