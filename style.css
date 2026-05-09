@@ -1,272 +1,557 @@
 :root{
-  --bg:#fff9fc;
-  --card:rgba(255,255,255,.78);
-  --ink:#4f3f49;
-  --muted:#927c87;
-  --line:#f0dce6;
-  --period:#ffd9e6;
-  --predicted:#ffe9f1;
-  --ovulation:#ffe3b9;
-  --fertile:#fff4cc;
-  --symptom:#d9cef7;
-  --accent:#d98eaa;
-  --accent2:#b69ee7;
-  --shadow:0 18px 45px rgba(150,93,120,.15);
+
+  --bg1:#ffe6ef;
+  --bg2:#e7dcff;
+
+  --card:
+  rgba(255,255,255,.72);
+
+  --line:#efd3df;
+
+  --text:#5d4857;
+
+  --pink:#f8bfd0;
+  --pink2:#f9d9e4;
+
+  --orange:#f4c98a;
+
+  --yellow:#f6e7a8;
+
+  --purple:#cfc3f7;
+
+  --blue:#b8d8ff;
+
+  --shadow:
+  0 10px 30px
+  rgba(185,145,180,.12);
 }
 
-*{box-sizing:border-box}
+*{
+  box-sizing:border-box;
+}
 
 body{
+
   margin:0;
-  font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;
+
+  font-family:
+  "Hiragino Sans",
+  "Noto Sans JP",
+  sans-serif;
+
+  color:var(--text);
+
   background:
-    radial-gradient(circle at 10% 0%, #ffe2ef 0 18%, transparent 34%),
-    radial-gradient(circle at 95% 8%, #eee1ff 0 18%, transparent 35%),
-    var(--bg);
-  color:var(--ink);
+  linear-gradient(
+    135deg,
+    var(--bg1),
+    var(--bg2)
+  );
+
+  min-height:100vh;
 }
 
 .app{
-  max-width:800px;
+
+  max-width:1100px;
+
   margin:auto;
-  padding:20px 16px 44px;
+
+  padding:28px;
 }
 
 .hero{
+
   text-align:center;
-  padding:30px 14px 22px;
+
+  margin-bottom:28px;
 }
 
 .eyebrow{
-  margin:0 0 8px;
-  color:var(--accent);
-  letter-spacing:.16em;
+
+  letter-spacing:.2em;
+
   text-transform:uppercase;
-  font-size:12px;
+
+  color:#d48aa8;
+
+  font-size:14px;
+
   font-weight:700;
 }
 
 h1{
-  margin:0;
-  font-size:42px;
-  letter-spacing:.02em;
+
+  margin:8px 0;
+
+  font-size:64px;
+
+  font-weight:800;
 }
 
 .lead{
-  color:var(--muted);
-  line-height:1.7;
+
+  font-size:22px;
+
+  opacity:.7;
 }
 
 .card{
+
   background:var(--card);
+
   border:1px solid var(--line);
-  border-radius:26px;
-  padding:18px;
-  margin:14px 0;
+
+  border-radius:36px;
+
+  padding:24px;
+
+  margin-bottom:24px;
+
   box-shadow:var(--shadow);
-  backdrop-filter:blur(14px);
+
+  backdrop-filter:blur(18px);
 }
 
 .overview{
+
   display:grid;
-  grid-template-columns:1.2fr 1fr 1.2fr;
-  gap:12px;
+
+  grid-template-columns:
+  repeat(
+    auto-fit,
+    minmax(220px,1fr)
+  );
+
+  gap:18px;
 }
 
 .stat{
-  background:rgba(255,255,255,.7);
+
+  background:
+  rgba(255,255,255,.55);
+
   border:1px solid var(--line);
-  border-radius:20px;
-  padding:14px;
+
+  border-radius:26px;
+
+  padding:18px;
 }
 
 .stat span{
+
   display:block;
-  color:var(--muted);
-  font-size:13px;
+
   font-weight:700;
-  margin-bottom:7px;
+
+  margin-bottom:12px;
 }
 
 .stat strong{
+
   display:block;
-  font-size:24px;
+
+  font-size:28px;
+
+  margin-bottom:8px;
 }
 
 .stat small{
-  display:block;
-  margin-top:4px;
-  color:var(--muted);
-  line-height:1.45;
+
+  opacity:.7;
+}
+
+.updated{
+
+  margin-top:18px;
+
+  font-size:14px;
+
+  opacity:.7;
+
+  line-height:1.5;
 }
 
 .calendar-head{
+
   display:flex;
-  justify-content:space-between;
+
   align-items:center;
-  gap:10px;
+
+  justify-content:space-between;
+
+  margin-bottom:18px;
 }
 
-.calendar-head button, .main-btn, .symptoms button, .ghost{
-  border:0;
-  border-radius:999px;
-  padding:12px 16px;
-  background:linear-gradient(135deg,var(--accent),var(--accent2));
-  color:white;
-  font-weight:800;
-  box-shadow:0 9px 20px rgba(160,99,140,.2);
+.calendar-head h2{
+
+  font-size:32px;
+
+  margin:0;
 }
 
 .calendar-head button{
-  width:46px;
-  height:46px;
-  font-size:24px;
-  padding:0;
+
+  width:64px;
+  height:64px;
+
+  border:none;
+
+  border-radius:50%;
+
+  background:
+  linear-gradient(
+    135deg,
+    #d793c1,
+    #bb9bf2
+  );
+
+  color:white;
+
+  font-size:36px;
+
+  cursor:pointer;
+
+  box-shadow:
+  0 8px 18px
+  rgba(190,140,210,.3);
+
+  transition:.2s;
+}
+
+.calendar-head button:hover{
+
+  transform:scale(1.05);
 }
 
 .legend{
+
   display:flex;
+
   flex-wrap:wrap;
-  gap:10px;
-  margin:12px 0;
-  color:var(--muted);
-  font-size:12px;
+
+  gap:18px;
+
+  margin-bottom:24px;
+}
+
+.legend span{
+
+  display:flex;
+
+  align-items:center;
+
+  gap:8px;
+
+  font-weight:600;
 }
 
 .dot{
-  display:inline-block;
-  width:10px;
-  height:10px;
+
+  width:14px;
+  height:14px;
+
   border-radius:50%;
-  margin-right:5px;
-  vertical-align:-1px;
+
+  display:inline-block;
 }
 
-.dot.period{background:var(--period)}
-.dot.predicted{background:var(--predicted)}
-.dot.ovulation{background:var(--ovulation)}
-.dot.fertile{background:var(--fertile)}
-.dot.symptom{background:var(--symptom)}
+.period{
+  background:var(--pink);
+}
 
-.weekdays,.calendar{
-  display:grid;
-  grid-template-columns:repeat(7,1fr);
-  gap:7px;
+.predicted{
+  background:var(--pink2);
+}
+
+.ovulation{
+  background:var(--orange);
+}
+
+.fertile{
+  background:var(--yellow);
+}
+
+.symptom{
+  background:var(--purple);
+}
+
+.watch{
+  background:var(--blue);
 }
 
 .weekdays{
-  margin:14px 0 8px;
-  color:var(--muted);
-  font-size:13px;
+
+  display:grid;
+
+  grid-template-columns:
+  repeat(7,1fr);
+
+  margin-bottom:14px;
+
   text-align:center;
+
+  font-weight:700;
+
+  opacity:.7;
+}
+
+.calendar{
+
+  display:grid;
+
+  grid-template-columns:
+  repeat(7,1fr);
+
+  gap:10px;
 }
 
 .day{
-  min-height:54px;
-  background:rgba(255,255,255,.82);
-  border:1px solid var(--line);
-  border-radius:16px;
-  padding:6px;
-  text-align:left;
+
+  aspect-ratio:1;
+
+  border-radius:24px;
+
+  border:2px solid var(--line);
+
+  background:
+  rgba(255,255,255,.4);
+
+  padding:12px;
+
   position:relative;
-}
 
-.day button{
-  all:unset;
-  width:100%;
-  height:100%;
   cursor:pointer;
+
+  transition:.15s;
 }
 
-.day .num{
-  font-weight:800;
+.day:hover{
+
+  transform:translateY(-2px);
 }
 
-.day .marks{
-  font-size:13px;
-  margin-top:3px;
-  line-height:1.15;
+.day.empty{
+
+  visibility:hidden;
 }
 
-.day.period{background:var(--period)}
-.day.predicted{background:var(--predicted)}
-.day.fertile{background:var(--fertile)}
-.day.ovulation{background:var(--ovulation)}
-.day.selected{outline:2px solid var(--accent)}
-.day.today{box-shadow:inset 0 0 0 2px rgba(217,142,170,.45)}
+.day-number{
+
+  font-size:18px;
+
+  font-weight:700;
+}
+
+.day.period{
+  background:rgba(248,191,208,.7);
+}
+
+.day.predicted{
+  background:rgba(249,217,228,.7);
+}
+
+.day.ovulation{
+  outline:
+  3px solid var(--orange);
+}
+
+.day.fertile{
+  box-shadow:
+  inset 0 0 0 3px
+  var(--yellow);
+}
+
+.day.selected{
+
+  border:
+  3px solid #7f7dff;
+}
+
 .day.has-symptom::after{
+
   content:"";
-  width:7px;height:7px;border-radius:50%;
-  background:var(--symptom);
-  position:absolute;right:8px;top:8px;
+
+  width:10px;
+  height:10px;
+
+  border-radius:50%;
+
+  background:var(--purple);
+
+  position:absolute;
+
+  bottom:10px;
+  right:10px;
 }
 
-.hint,.selected,.note,.stats,.day-detail{
-  color:var(--muted);
-  line-height:1.7;
-}
+.day.has-watch::before{
 
-.symptoms{
-  display:flex;
-  flex-wrap:wrap;
-  gap:9px;
+  content:"⌚";
+
+  position:absolute;
+
+  bottom:8px;
+  left:8px;
+
+  font-size:14px;
 }
 
 .main-btn{
+
   width:100%;
-  margin:4px 0 12px;
+
+  border:none;
+
+  border-radius:999px;
+
+  padding:18px;
+
+  font-size:18px;
+
+  font-weight:700;
+
+  color:white;
+
+  background:
+  linear-gradient(
+    135deg,
+    #d98cae,
+    #b196f1
+  );
+
+  cursor:pointer;
+
+  transition:.2s;
+}
+
+.main-btn:hover{
+
+  transform:translateY(-2px);
+}
+
+.small{
+
+  width:auto;
+
+  padding:
+  14px 22px;
+}
+
+.button-row{
+
+  display:flex;
+
+  gap:12px;
+
+  flex-wrap:wrap;
+}
+
+.symptoms{
+
+  display:flex;
+
+  flex-wrap:wrap;
+
+  gap:12px;
+}
+
+.symptoms button{
+
+  border:none;
+
+  border-radius:999px;
+
+  padding:
+  12px 18px;
+
+  background:
+  rgba(255,255,255,.7);
+
+  border:
+  1px solid var(--line);
+
+  cursor:pointer;
+
+  font-size:15px;
+}
+
+textarea{
+
+  width:100%;
+
+  min-height:140px;
+
+  border-radius:22px;
+
+  border:1px solid var(--line);
+
+  padding:16px;
+
+  font-size:15px;
+
+  resize:vertical;
+
+  margin-bottom:14px;
+
+  background:
+  rgba(255,255,255,.65);
+}
+
+.day-detail{
+
+  line-height:1.8;
+}
+
+.stats{
+
+  line-height:1.8;
 }
 
 .ghost{
-  background:white;
-  color:var(--accent);
-  border:1px solid var(--line);
-  box-shadow:none;
+
+  border:none;
+
+  background:
+  rgba(255,255,255,.7);
+
+  border:
+  1px solid var(--line);
+
+  border-radius:999px;
+
+  padding:
+  14px 20px;
+
+  cursor:pointer;
 }
 
-@media(max-width:650px){
-  .overview{grid-template-columns:1fr}
-  h1{font-size:36px}
-  .day{min-height:48px;border-radius:14px}
+.note{
+
+  text-align:center;
+
+  opacity:.7;
 }
 
-.future-item{
-  background:#fff;
-  border-radius:18px;
-  padding:16px;
-  margin-top:12px;
-  line-height:1.8;
-  box-shadow:0 4px 10px rgba(0,0,0,.05);
-}
+@media(max-width:700px){
 
-.watch-box{
-  margin-top:14px;
-  padding:12px;
-  border-radius:14px;
-  background:#f5f8ff;
-  line-height:1.8;
-}
+  h1{
+    font-size:42px;
+  }
 
-.day.predicted button{
-  background:#ffe3ef;
-}
+  .calendar-head h2{
+    font-size:24px;
+  }
 
-.day.fertile button{
-  background:#f6ecff;
-}
+  .calendar-head button{
 
-.day.ovulation button{
-  border:2px solid #f7c873;
-}
+    width:52px;
+    height:52px;
 
-.day.pms button{
-  background:#f8f4fa;
-}
+    font-size:28px;
+  }
 
-.day.has-watch button::after{
-  content:"⌚";
-  position:absolute;
-  top:6px;
-  right:6px;
-  font-size:12px;
+  .day{
+    border-radius:18px;
+  }
 }
