@@ -1,3 +1,16 @@
+import {
+  initializeApp
+}
+from
+"https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+
+import {
+  getFirestore,
+  doc,
+  onSnapshot
+}
+from
+"https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
 const VARIANCE = 4;
 
 const pad = n => String(n).padStart(2,"0");
