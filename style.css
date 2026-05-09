@@ -262,3 +262,11 @@ h1{
 .day.pms button{
   box-shadow:0 0 0 2px #d8d0dc inset;
 }
+
+.day.has-watch button::after{
+  content:"⌚";
+  position:absolute;
+  top:6px;
+  right:6px;
+  font-size:12px;
+}
