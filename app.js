@@ -888,6 +888,6 @@ function render(){
   renderCalendar();
 
   renderDetail();
-}
 
-render();
+  renderStats();
+}
