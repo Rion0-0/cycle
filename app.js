@@ -9,8 +9,6 @@ let selected =
 let selectedKey =
   toKey(selected);
 
-let updatedAt = null;
-
 /* =========================
    storage
 ========================= */
@@ -237,17 +235,17 @@ function predictions(){
 
   const arr = [];
 
-  let current =
+  let currentStart =
     start;
 
   for(let i=0;i<6;i++){
 
     const p =
-      predictionFrom(current);
+      predictionFrom(currentStart);
 
     arr.push(p);
 
-    current =
+    currentStart =
       toKey(p.next);
   }
 
@@ -343,7 +341,7 @@ async function syncToCloud(){
 }
 
 /* =========================
-   render summary
+   summary
 ========================= */
 
 function renderSummary(){
@@ -355,43 +353,76 @@ function renderSummary(){
     return;
   }
 
-  document.getElementById(
-    "nextPeriod"
-  ).textContent =
-    jp(p.next);
+  const nextPeriodEl =
+    document.getElementById(
+      "nextPeriod"
+    );
 
-  document.getElementById(
-    "nextRange"
-  ).textContent =
-    `${jp(p.next)}〜${jp(p.nextEnd)}`;
+  if(nextPeriodEl){
 
-  document.getElementById(
-    "ovulation"
-  ).textContent =
-    jp(p.ovulation);
+    nextPeriodEl.textContent =
+      jp(p.next);
+  }
+
+  const nextRangeEl =
+    document.getElementById(
+      "nextRange"
+    );
+
+  if(nextRangeEl){
+
+    nextRangeEl.textContent =
+      `${jp(p.next)}〜${jp(p.nextEnd)}`;
+  }
+
+  const ovulationEl =
+    document.getElementById(
+      "ovulation"
+    );
+
+  if(ovulationEl){
+
+    ovulationEl.textContent =
+      jp(p.ovulation);
+  }
 
   const w =
     mentalWeather(
       new Date()
     );
 
-  document.getElementById(
-    "mentalWeather"
-  ).textContent =
-    `${w.icon}${w.label}`;
+  const weatherEl =
+    document.getElementById(
+      "mentalWeather"
+    );
 
-  document.getElementById(
-    "weatherNote"
-  ).textContent =
-    w.label;
-  
-  const updated =
-  new Date();
+  if(weatherEl){
 
-document.getElementById(
-  "updatedAt"
-).textContent =
-  `最終更新：${updated.toLocaleString("ja-JP")}`;
+    weatherEl.textContent =
+      `${w.icon}${w.label}`;
+  }
+
+  const weatherNoteEl =
+    document.getElementById(
+      "weatherNote"
+    );
+
+  if(weatherNoteEl){
+
+    weatherNoteEl.textContent =
+      w.label;
+  }
+
+  const updatedEl =
+    document.getElementById(
+      "updatedAt"
+    );
+
+  if(updatedEl){
+
+    updatedEl.textContent =
+      `最終更新：${new Date().toLocaleString("ja-JP")}`;
+  }
 }
 
 /* =========================
@@ -405,12 +436,22 @@ function renderCalendar(){
       "calendar"
     );
 
+  if(!cal){
+    return;
+  }
+
   cal.innerHTML = "";
 
-  document.getElementById(
-    "monthLabel"
-  ).textContent =
-    `${current.getFullYear()}年 ${current.getMonth()+1}月`;
+  const monthLabel =
+    document.getElementById(
+      "monthLabel"
+    );
+
+  if(monthLabel){
+
+    monthLabel.textContent =
+      `${current.getFullYear()}年 ${current.getMonth()+1}月`;
+  }
 
   const firstDay =
     new Date(
@@ -432,6 +473,9 @@ function renderCalendar(){
       document.createElement(
         "div"
       );
+
+    empty.className =
+      "day empty";
 
     cal.appendChild(empty);
   }
@@ -456,22 +500,23 @@ function renderCalendar(){
     cell.className =
       "day";
 
-    cell.textContent = d;
+    cell.innerHTML =
+      `<div class="day-number">${d}</div>`;
 
     if(key===selectedKey){
 
       cell.classList.add(
-        "selected-day"
+        "selected"
       );
     }
 
-    const starts =
-      getStarts();
-
-    if(starts.includes(key)){
+    if(
+      getStarts()
+      .includes(key)
+    ){
 
       cell.classList.add(
-        "period-day"
+        "period"
       );
     }
 
@@ -484,7 +529,7 @@ function renderCalendar(){
       ){
 
         cell.classList.add(
-          "predicted-day"
+          "predicted"
         );
       }
 
@@ -495,7 +540,7 @@ function renderCalendar(){
       ){
 
         cell.classList.add(
-          "ovulation-day"
+          "ovulation"
         );
       }
 
@@ -510,7 +555,7 @@ function renderCalendar(){
       ){
 
         cell.classList.add(
-          "fertile-day"
+          "fertile"
         );
       }
     }
@@ -521,7 +566,7 @@ function renderCalendar(){
     if(symptoms[key]){
 
       cell.classList.add(
-        "symptom-day"
+        "has-symptom"
       );
     }
 
@@ -530,18 +575,9 @@ function renderCalendar(){
 
     if(watch[key]){
 
-      const mark =
-        document.createElement(
-          "div"
-        );
-
-      mark.className =
-        "watch-mark";
-
-      mark.textContent =
-        "⌚";
-
-      cell.appendChild(mark);
+      cell.classList.add(
+        "has-watch"
+      );
     }
 
     cell.onclick = ()=>{
@@ -565,37 +601,48 @@ function renderCalendar(){
 
 function renderDetail(){
 
-  document.getElementById(
-    "selectedLabel"
-  ).textContent =
-    selectedKey;
+  const label =
+    document.getElementById(
+      "selectedLabel"
+    );
+
+  if(label){
+
+    label.textContent =
+      selectedKey;
+  }
 
   const detail =
     document.getElementById(
       "dayDetail"
     );
 
+  if(!detail){
+    return;
+  }
+
   const symptoms =
     getSymptoms();
 
   const watch =
     getWatch();
-detail.innerHTML = `
 
-  <p>
-    症状：
-    ${
-      symptoms[selectedKey]
-      ?.join("、")
-      || "なし"
-    }
-  </p>
+  detail.innerHTML = `
 
-  <p>
-    Watch：
-  </p>
+    <p>
+      症状：
+      ${
+        symptoms[selectedKey]
+        ?.join("、 ")
+        || "なし"
+      }
+    </p>
 
-  <pre>
+    <p>
+      Watch：
+    </p>
+
+    <pre>
 ${
   watch[selectedKey]
   ? JSON.stringify(
@@ -605,9 +652,9 @@ ${
     )
   : "記録なし"
 }
-  </pre>
+    </pre>
 
-`;
+  `;
 }
 
 /* =========================
@@ -641,6 +688,7 @@ function togglePeriod(){
   }
 
   setStarts(starts);
+
   setLengths(lengths);
 
   syncToCloud();
@@ -693,16 +741,19 @@ function parseWatchText(text){
 
 function saveWatch(){
 
-  const text =
-    document
-    .getElementById(
+  const input =
+    document.getElementById(
       "watchInput"
-    )
-    .value
-    .trim();
+    );
+
+  if(!input){
+    return;
+  }
+
+  const text =
+    input.value.trim();
 
   if(!text){
-
     return;
   }
 
@@ -723,38 +774,50 @@ function saveWatch(){
    bind
 ========================= */
 
-document
-.getElementById(
-  "prevMonth"
-)
-.onclick = ()=>{
-
-  current.setMonth(
-    current.getMonth()-1
+const prevBtn =
+  document.getElementById(
+    "prevMonth"
   );
 
-  render();
-};
+if(prevBtn){
 
-document
-.getElementById(
-  "nextMonth"
-)
-.onclick = ()=>{
+  prevBtn.onclick = ()=>{
 
-  current.setMonth(
-    current.getMonth()+1
+    current.setMonth(
+      current.getMonth()-1
+    );
+
+    render();
+  };
+}
+
+const nextBtn =
+  document.getElementById(
+    "nextMonth"
   );
 
-  render();
-};
+if(nextBtn){
 
-document
-.getElementById(
-  "periodToggle"
-)
-.onclick =
-  togglePeriod;
+  nextBtn.onclick = ()=>{
+
+    current.setMonth(
+      current.getMonth()+1
+    );
+
+    render();
+  };
+}
+
+const periodBtn =
+  document.getElementById(
+    "periodToggle"
+  );
+
+if(periodBtn){
+
+  periodBtn.onclick =
+    togglePeriod;
+}
 
 document
 .querySelectorAll(
@@ -770,12 +833,16 @@ document
   };
 });
 
-document
-.getElementById(
-  "saveWatch"
-)
-.onclick =
-  saveWatch;
+const saveWatchBtn =
+  document.getElementById(
+    "saveWatch"
+  );
+
+if(saveWatchBtn){
+
+  saveWatchBtn.onclick =
+    saveWatch;
+}
 
 /* =========================
    render
