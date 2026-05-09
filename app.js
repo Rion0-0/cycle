@@ -580,29 +580,34 @@ function renderDetail(){
 
   const watch =
     getWatch();
+detail.innerHTML = `
 
-  detail.innerHTML = `
+  <p>
+    症状：
+    ${
+      symptoms[selectedKey]
+      ?.join("、")
+      || "なし"
+    }
+  </p>
 
-    <p>
-      症状：
-      ${
-        symptoms[selectedKey]
-        ?.join("、")
-        || "なし"
-      }
-    </p>
+  <p>
+    Watch：
+  </p>
 
-    <pre>
+  <pre>
 ${
-JSON.stringify(
   watch[selectedKey]
-  || {},
-  null,
-  2
-)
+  ? JSON.stringify(
+      watch[selectedKey],
+      null,
+      2
+    )
+  : "記録なし"
 }
-    </pre>
-  `;
+  </pre>
+
+`;
 }
 
 /* =========================
