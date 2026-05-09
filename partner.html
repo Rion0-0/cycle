@@ -1,105 +1,220 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Rino Cycle Share</title>
 
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+
+  <meta
+    name="viewport"
+    content="
+      width=device-width,
+      initial-scale=1.0
+    "
+  />
+
+  <title>
+    Partner Cycle View
+  </title>
+
+  <link
+    rel="stylesheet"
+    href="style.css"
+  />
+
 </head>
 
 <body>
 
-<div class="app">
+  <div class="app">
 
-  <header class="hero">
-    <p class="eyebrow">shared view</p>
+    <header class="hero">
 
-    <h1>Rino Cycle 🌙</h1>
+      <p class="eyebrow">
+        partner view
+      </p>
 
-    <p class="lead">
-      今日の体調と周期予定
-    </p>
-  </header>
+      <h1>
+        Cycle Share
+      </h1>
 
-  <section class="card overview">
+    </header>
 
-    <div class="stat big">
-      <span>次の生理予定</span>
-      <strong id="nextPeriod">--</strong>
-      <small id="nextRange">--</small>
-    </div>
+    <section class="card overview">
 
-<div class="stat">
+      <div class="stat big">
 
-  <span>排卵予測</span>
+        <span>
+          次の生理予定
+        </span>
 
-  <strong id="ovulation">--</strong>
+        <strong id="nextPeriod">
+          --
+        </strong>
 
-</div>
-<div class="stat weather">
+        <small id="nextRange">
+          --
+        </small>
 
-  <span>今日のメンタル天気</span>
+      </div>
 
-  <strong id="mentalWeather">--</strong>
+      <div class="stat">
 
-  <small id="weatherNote">--</small>
+        <span>
+          排卵予測
+        </span>
 
-  <p id="updatedAt" class="updated">
-    最終更新：--
-  </p>
+        <strong id="ovulation">
+          --
+        </strong>
 
-</div>
-  </section>
+      </div>
 
-  <section class="card">
+      <div class="stat weather">
 
-    <div class="calendar-head">
-      <button id="prevMonth">‹</button>
-      <h2 id="monthLabel">--</h2>
-      <button id="nextMonth">›</button>
-    </div>
+        <span>
+          メンタル天気
+        </span>
 
-   <div class="legend partner-legend">
+        <strong id="mentalWeather">
+          --
+        </strong>
 
-  <span>
-    <i class="dot predicted"></i>
-    生理予定
-  </span>
+        <small id="weatherNote">
+          --
+        </small>
 
-  <span>
-    <i class="dot ovulation"></i>
-    排卵
-  </span>
+        <p
+          id="updatedAt"
+          class="updated"
+        >
+          最終更新：--
+        </p>
 
-  <span>
-    <i class="dot fertile"></i>
-    妊娠可能性
-  </span>
+      </div>
 
-  <span>
-    <i class="dot pms"></i>
-    PMS
-  </span>
+    </section>
 
-</div>
-    <div class="weekdays">
-      <span>日</span>
-      <span>月</span>
-      <span>火</span>
-      <span>水</span>
-      <span>木</span>
-      <span>金</span>
-      <span>土</span>
-    </div>
+    <section class="card">
 
-    <div id="calendar" class="calendar"></div>
+      <div class="calendar-head">
 
-  </section>
+        <button id="prevMonth">
+          ‹
+        </button>
 
-</div>
+        <h2 id="monthLabel">
+          --
+        </h2>
 
-<script type="module" src="partner.js"></script>
+        <button id="nextMonth">
+          ›
+        </button>
+
+      </div>
+
+      <div class="legend">
+
+        <span>
+          <i class="dot period"></i>
+          生理
+        </span>
+
+        <span>
+          <i class="dot predicted"></i>
+          予測
+        </span>
+
+        <span>
+          <i class="dot ovulation"></i>
+          排卵
+        </span>
+
+        <span>
+          <i class="dot fertile"></i>
+          妊娠可能性
+        </span>
+
+        <span>
+          <i class="dot symptom"></i>
+          症状
+        </span>
+
+        <span>
+          <i class="dot watch"></i>
+          Watch
+        </span>
+
+      </div>
+
+      <div class="weekdays">
+
+        <span>日</span>
+        <span>月</span>
+        <span>火</span>
+        <span>水</span>
+        <span>木</span>
+        <span>金</span>
+        <span>土</span>
+
+      </div>
+
+      <div
+        id="calendar"
+        class="calendar"
+      ></div>
+
+    </section>
+
+  </div>
+
+  <script type="module">
+
+    import {
+      initializeApp
+    }
+    from
+    "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+
+    import {
+      getFirestore
+    }
+    from
+    "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+
+      apiKey:
+      "AIzaSyA8eQWqxpxfMG8LEQgssRzcMJbn93JA5zg",
+
+      authDomain:
+      "cycle-counter.firebaseapp.com",
+
+      projectId:
+      "cycle-counter",
+
+      storageBucket:
+      "cycle-counter.firebasestorage.app",
+
+      messagingSenderId:
+      "466749972992",
+
+      appId:
+      "1:466749972992:web:80de09778ad7926c28aee5"
+
+    };
+
+    const app =
+      initializeApp(firebaseConfig);
+
+    window.db =
+      getFirestore(app);
+
+  </script>
+
+  <script
+    type="module"
+    src="partner.js"
+  ></script>
 
 </body>
 </html>
