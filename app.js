@@ -384,6 +384,14 @@ function renderSummary(){
     "weatherNote"
   ).textContent =
     w.label;
+  
+  const updated =
+  new Date();
+
+document.getElementById(
+  "updatedAt"
+).textContent =
+  `最終更新：${updated.toLocaleString("ja-JP")}`;
 }
 
 /* =========================
