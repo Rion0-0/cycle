@@ -510,16 +510,36 @@ function renderCalendar(){
       );
     }
 
-    if(
-      getStarts()
-      .includes(key)
-    ){
+  const starts =
+  getStarts();
 
-      cell.classList.add(
-        "period"
-      );
-    }
+const lengths =
+  getLengths();
 
+for(const startKey of starts){
+
+  const startDate =
+    fromKey(startKey);
+
+  const length =
+    lengths[startKey] || 5;
+
+  const endDate =
+    addDays(
+      startDate,
+      length - 1
+    );
+
+  if(
+    date >= startDate &&
+    date <= endDate
+  ){
+
+    cell.classList.add(
+      "period"
+    );
+  }
+}
     for(const p of predictions()){
 
       if(
