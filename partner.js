@@ -569,7 +569,19 @@ onSnapshot(
         data.watchData || {}
       )
     );
+if(data.updatedAt){
 
+  const d =
+    new Date(data.updatedAt);
+
+  document.getElementById(
+    "updatedAt"
+  ).textContent =
+
+    `最終更新：
+    ${d.getMonth()+1}/${d.getDate()}
+    ${d.getHours()}:${String(d.getMinutes()).padStart(2,"0")}`;
+}
     render();
 
     console.log(
