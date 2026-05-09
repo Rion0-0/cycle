@@ -696,6 +696,28 @@ function render(){
   renderCalendar();
   renderSelected();
   renderStats();
+
+  const starts =
+    getStarts();
+
+  const btn =
+    document.getElementById(
+      "periodToggle"
+    );
+
+  if(
+    starts.includes(selectedKey)
+  ){
+
+    btn.textContent =
+      "✅ 生理記録済み";
+  }
+
+  else{
+
+    btn.textContent =
+      "🩸 生理を記録";
+  }
 }
 
 document
