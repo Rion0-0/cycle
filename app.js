@@ -1,96 +1,48 @@
-const SEED_PERIODS = [
-  "2025-05-14","2025-06-18","2025-07-21","2025-08-23",
-  "2025-09-25","2025-10-23","2025-11-24","2025-12-29",
-  "2026-02-04","2026-03-10","2026-04-07"
-];
+let current =
+  new Date();
 
-const SEED_LENGTHS = {
-  "2025-05-14":6,
-  "2025-06-18":7,
-  "2025-07-21":5,
-  "2025-08-23":6,
-  "2025-09-25":5,
-  "2025-10-23":2,
-  "2025-11-24":7,
-  "2025-12-29":4,
-  "2026-02-04":5,
-  "2026-03-10":7,
-  "2026-04-07":6
-};
+current.setDate(1);
 
-const VARIANCE = 4;
-const DEFAULT_CYCLE = 33;
-const DEFAULT_PERIOD = 6;
+let selected =
+  new Date();
 
-const pad = n => String(n).padStart(2,"0");
+let selectedKey =
+  toKey(selected);
 
-const toKey = d =>
-  `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+let updatedAt = null;
 
-const fromKey = s => {
-  const [y,m,d] = s.split("-").map(Number);
-  return new Date(y,m-1,d);
-};
-
-const addDays = (date,days)=>{
-  const d = new Date(date);
-  d.setDate(d.getDate()+days);
-  return d;
-};
-
-const jp = d => `${d.getMonth()+1}/${d.getDate()}`;
-
-function init(){
-
-  if(!localStorage.getItem("periodStarts")){
-    localStorage.setItem(
-      "periodStarts",
-      JSON.stringify(SEED_PERIODS)
-    );
-  }
-
-  if(!localStorage.getItem("periodLengths")){
-    localStorage.setItem(
-      "periodLengths",
-      JSON.stringify(SEED_LENGTHS)
-    );
-  }
-
-  if(!localStorage.getItem("symptoms")){
-    localStorage.setItem(
-      "symptoms",
-      JSON.stringify({})
-    );
-  }
-
-  if(!localStorage.getItem("watchData")){
-    localStorage.setItem(
-      "watchData",
-      JSON.stringify({})
-    );
-  }
-}
+/* =========================
+   storage
+========================= */
 
 function getStarts(){
+
   return JSON.parse(
-    localStorage.getItem("periodStarts") || "[]"
-  ).sort();
+    localStorage.getItem(
+      "periodStarts"
+    ) || "[]"
+  );
 }
 
 function setStarts(v){
+
   localStorage.setItem(
     "periodStarts",
-    JSON.stringify([...new Set(v)].sort())
+    JSON.stringify(v)
   );
 }
 
 function getLengths(){
+
   return JSON.parse(
-    localStorage.getItem("periodLengths") || "{}"
+    localStorage.getItem(
+      "periodLengths"
+    ) || "{}"
   );
 }
 
 function setLengths(v){
+
   localStorage.setItem(
     "periodLengths",
     JSON.stringify(v)
@@ -98,12 +50,16 @@ function setLengths(v){
 }
 
 function getSymptoms(){
+
   return JSON.parse(
-    localStorage.getItem("symptoms") || "{}"
+    localStorage.getItem(
+      "symptoms"
+    ) || "{}"
   );
 }
 
 function setSymptoms(v){
+
   localStorage.setItem(
     "symptoms",
     JSON.stringify(v)
@@ -111,164 +67,303 @@ function setSymptoms(v){
 }
 
 function getWatch(){
+
   return JSON.parse(
-    localStorage.getItem("watchData") || "{}"
+    localStorage.getItem(
+      "watchData"
+    ) || "{}"
   );
 }
 
 function setWatch(v){
+
   localStorage.setItem(
     "watchData",
     JSON.stringify(v)
   );
 }
 
-let now = new Date();
+/* =========================
+   util
+========================= */
 
-let currentYear = now.getFullYear();
-let currentMonth = now.getMonth();
+function pad(n){
 
-let selectedKey = toKey(now);
+  return String(n)
+    .padStart(2,"0");
+}
+
+function toKey(d){
+
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+}
+
+function fromKey(k){
+
+  const [y,m,d] =
+    k.split("-");
+
+  return new Date(y,m-1,d);
+}
+
+function addDays(d,n){
+
+  const x =
+    new Date(d);
+
+  x.setDate(
+    x.getDate()+n
+  );
+
+  return x;
+}
+
+function jp(d){
+
+  return `${d.getMonth()+1}/${d.getDate()}`;
+}
+
+/* =========================
+   cycle
+========================= */
 
 function cycleDiffs(){
 
-  const starts = getStarts();
-  const diffs = [];
-
-  for(let i=1;i<starts.length;i++){
-
-    const diff =
-      Math.round(
-        (
-          fromKey(starts[i]) -
-          fromKey(starts[i-1])
-        ) / 86400000
-      );
-
-    if(diff > 15 && diff < 60){
-      diffs.push(diff);
-    }
-  }
-
-  return diffs;
-}
-
-function avg(arr,fallback){
-
-  if(!arr.length) return fallback;
-
-  return Math.round(
-    arr.reduce((a,b)=>a+b,0)/arr.length
-  );
-}
-
-function avgCycle(){
-  return avg(cycleDiffs(),DEFAULT_CYCLE);
-}
-
-function avgPeriod(){
-
-  const vals =
-    Object.values(getLengths())
-    .filter(v=>v>0);
-
-  return avg(vals,DEFAULT_PERIOD);
-}
-
-function lastStart(){
-
-  const starts = getStarts();
-
-  return starts.length
-    ? fromKey(starts[starts.length-1])
-    : null;
-}
-
-function predictionFrom(start,n=0){
-
-  const cycle = avgCycle();
-  const period = avgPeriod();
-
-  const next =
-    addDays(start, cycle*(n+1));
-
-  return {
-    next,
-    nextEnd:addDays(next,period-1),
-    ovulation:addDays(next,-14),
-    fertileStart:addDays(next,-19),
-    fertileEnd:addDays(next,-13),
-    pmsStart:addDays(next,-7)
-  };
-}
-
-function predictions(){
-
-  const last = lastStart();
-
-  if(!last) return [];
+  const starts =
+    getStarts()
+    .map(fromKey)
+    .sort((a,b)=>a-b);
 
   const arr = [];
 
-  for(let i=0;i<6;i++){
-    arr.push(predictionFrom(last,i));
+  for(let i=1;i<starts.length;i++){
+
+    arr.push(
+      Math.round(
+        (starts[i]-starts[i-1])
+        /86400000
+      )
+    );
   }
 
   return arr;
 }
 
+function avgCycle(){
+
+  const arr =
+    cycleDiffs();
+
+  if(!arr.length){
+    return 28;
+  }
+
+  return Math.round(
+    arr.reduce((a,b)=>a+b,0)
+    /arr.length
+  );
+}
+
+function avgPeriod(){
+
+  const lengths =
+    Object.values(
+      getLengths()
+    );
+
+  if(!lengths.length){
+    return 5;
+  }
+
+  return Math.round(
+    lengths.reduce((a,b)=>a+b,0)
+    /lengths.length
+  );
+}
+
+function lastStart(){
+
+  const starts =
+    getStarts()
+    .sort();
+
+  return starts.at(-1);
+}
+
+function predictionFrom(startKey){
+
+  const cycle =
+    avgCycle();
+
+  const period =
+    avgPeriod();
+
+  const start =
+    fromKey(startKey);
+
+  const next =
+    addDays(start,cycle);
+
+  const nextEnd =
+    addDays(next,period-1);
+
+  const ovulation =
+    addDays(next,-14);
+
+  const fertileStart =
+    addDays(ovulation,-5);
+
+  const fertileEnd =
+    addDays(ovulation,+1);
+
+  return {
+
+    next,
+    nextEnd,
+    ovulation,
+    fertileStart,
+    fertileEnd
+  };
+}
+
+function predictions(){
+
+  const start =
+    lastStart();
+
+  if(!start){
+    return [];
+  }
+
+  const arr = [];
+
+  let current =
+    start;
+
+  for(let i=0;i<6;i++){
+
+    const p =
+      predictionFrom(current);
+
+    arr.push(p);
+
+    current =
+      toKey(p.next);
+  }
+
+  return arr;
+}
+
+/* =========================
+   weather
+========================= */
+
 function mentalWeather(date){
 
-  const preds = predictions();
+  const start =
+    lastStart();
 
-  for(const p of preds){
+  if(!start){
 
-    if(
-      date >= p.pmsStart &&
-      date < p.next
-    ){
-      return {
-        icon:"⛈️",
-        text:"雷雨注意",
-        note:"PMS期間。情緒ゆらぎ注意"
-      };
-    }
+    return {
+      icon:"☀️",
+      label:"安定"
+    };
+  }
 
-    if(
-      date >= p.next &&
-      date <= p.nextEnd
-    ){
-      return {
-        icon:"🌧️",
-        text:"雨",
-        note:"生理期間。無理しすぎ注意"
-      };
-    }
+  const diff =
+    Math.round(
+      (date-fromKey(start))
+      /86400000
+    );
+
+  const cycle =
+    avgCycle();
+
+  const day =
+    ((diff%cycle)+cycle)%cycle;
+
+  if(day>=cycle-7){
+
+    return {
+      icon:"⛈️",
+      label:"PMS注意"
+    };
+  }
+
+  if(day<=4){
+
+    return {
+      icon:"🌧️",
+      label:"ゆったり"
+    };
   }
 
   return {
     icon:"☀️",
-    text:"晴れ",
-    note:"比較的安定しやすい日"
+    label:"比較的安定"
   };
 }
 
+/* =========================
+   firebase
+========================= */
+
+async function syncToCloud(){
+
+  if(
+    typeof firebaseFns ===
+    "undefined"
+  ){
+    return;
+  }
+
+  const data = {
+
+    periodStarts:getStarts(),
+    periodLengths:getLengths(),
+    symptoms:getSymptoms(),
+    watchData:getWatch(),
+
+    updatedAt:
+      new Date()
+      .toISOString()
+  };
+
+  await firebaseFns.setDoc(
+
+    firebaseFns.doc(
+      db,
+      "cycles",
+      "shared"
+    ),
+
+    data
+  );
+}
+
+/* =========================
+   render summary
+========================= */
+
 function renderSummary(){
 
-  const p = predictions()[0];
+  const p =
+    predictions()[0];
 
-  if(!p) return;
+  if(!p){
+    return;
+  }
 
   document.getElementById(
     "nextPeriod"
-  ).textContent = jp(p.next);
+  ).textContent =
+    jp(p.next);
 
   document.getElementById(
     "nextRange"
   ).textContent =
-    `${jp(addDays(p.next,-VARIANCE))}
-    〜
-    ${jp(addDays(p.next,VARIANCE))}`;
+    `${jp(p.next)}〜${jp(p.nextEnd)}`;
 
   document.getElementById(
     "ovulation"
@@ -276,278 +371,250 @@ function renderSummary(){
     jp(p.ovulation);
 
   const w =
-    mentalWeather(new Date());
+    mentalWeather(
+      new Date()
+    );
 
   document.getElementById(
     "mentalWeather"
   ).textContent =
-    `${w.icon} ${w.text}`;
+    `${w.icon}${w.label}`;
 
   document.getElementById(
     "weatherNote"
   ).textContent =
-    w.note;
+    w.label;
 }
+
+/* =========================
+   calendar
+========================= */
 
 function renderCalendar(){
 
   const cal =
-    document.getElementById("calendar");
+    document.getElementById(
+      "calendar"
+    );
 
   cal.innerHTML = "";
 
   document.getElementById(
     "monthLabel"
   ).textContent =
-    `${currentYear}年 ${currentMonth+1}月`;
+    `${current.getFullYear()}年 ${current.getMonth()+1}月`;
 
-  const first =
-    new Date(currentYear,currentMonth,1);
+  const firstDay =
+    new Date(
+      current.getFullYear(),
+      current.getMonth(),
+      1
+    ).getDay();
 
-  const last =
-    new Date(currentYear,currentMonth+1,0);
+  const lastDate =
+    new Date(
+      current.getFullYear(),
+      current.getMonth()+1,
+      0
+    ).getDate();
 
-  for(let i=0;i<first.getDay();i++){
-    cal.appendChild(document.createElement("div"));
+  for(let i=0;i<firstDay;i++){
+
+    const empty =
+      document.createElement(
+        "div"
+      );
+
+    cal.appendChild(empty);
   }
 
-  const symptoms = getSymptoms();
-  const watch = getWatch();
-  const preds = predictions();
-
-  for(let day=1;day<=last.getDate();day++){
+  for(let d=1;d<=lastDate;d++){
 
     const date =
-      new Date(currentYear,currentMonth,day);
+      new Date(
+        current.getFullYear(),
+        current.getMonth(),
+        d
+      );
 
-    const key = toKey(date);
+    const key =
+      toKey(date);
 
-    let cls = "day";
+    const cell =
+      document.createElement(
+        "button"
+      );
 
-    for(const p of preds){
+    cell.className =
+      "day";
+
+    cell.textContent = d;
+
+    if(key===selectedKey){
+
+      cell.classList.add(
+        "selected-day"
+      );
+    }
+
+    const starts =
+      getStarts();
+
+    if(starts.includes(key)){
+
+      cell.classList.add(
+        "period-day"
+      );
+    }
+
+    for(const p of predictions()){
 
       if(
-        date >= p.next &&
-        date <= p.nextEnd
+        key>=toKey(p.next)
+        &&
+        key<=toKey(p.nextEnd)
       ){
-        cls += " predicted";
+
+        cell.classList.add(
+          "predicted-day"
+        );
       }
 
       if(
-        date >= p.fertileStart &&
-        date <= p.fertileEnd
+        key===toKey(
+          p.ovulation
+        )
       ){
-        cls += " fertile";
+
+        cell.classList.add(
+          "ovulation-day"
+        );
       }
 
       if(
-        key === toKey(p.ovulation)
+        key>=toKey(
+          p.fertileStart
+        )
+        &&
+        key<=toKey(
+          p.fertileEnd
+        )
       ){
-        cls += " ovulation";
-      }
 
-      if(
-        date >= p.pmsStart &&
-        date < p.next
-      ){
-        cls += " pms";
+        cell.classList.add(
+          "fertile-day"
+        );
       }
     }
 
-    if(symptoms[key]?.length){
-      cls += " has-symptom";
+    const symptoms =
+      getSymptoms();
+
+    if(symptoms[key]){
+
+      cell.classList.add(
+        "symptom-day"
+      );
     }
+
+    const watch =
+      getWatch();
 
     if(watch[key]){
-      cls += " has-watch";
+
+      const mark =
+        document.createElement(
+          "div"
+        );
+
+      mark.className =
+        "watch-mark";
+
+      mark.textContent =
+        "⌚";
+
+      cell.appendChild(mark);
     }
 
-    if(key === selectedKey){
-      cls += " selected";
-    }
+    cell.onclick = ()=>{
 
-    const div =
-      document.createElement("div");
-
-    div.className = cls;
-
-    div.innerHTML = `
-      <button data-date="${key}">
-        <div class="num">${day}</div>
-      </button>
-    `;
-
-    cal.appendChild(div);
-  }
-
-  document
-  .querySelectorAll("[data-date]")
-  .forEach(btn=>{
-
-    btn.addEventListener("click",()=>{
+      selected =
+        date;
 
       selectedKey =
-        btn.dataset.date;
+        key;
 
       render();
-    });
-  });
+    };
+
+    cal.appendChild(cell);
+  }
+}
+
+/* =========================
+   detail
+========================= */
+
+function renderDetail(){
 
   document.getElementById(
     "selectedLabel"
   ).textContent =
-    selectedKey.replaceAll("-","/");
-}
+    selectedKey;
 
-function renderSelected(){
+  const detail =
+    document.getElementById(
+      "dayDetail"
+    );
 
   const symptoms =
-    getSymptoms()[selectedKey] || [];
+    getSymptoms();
 
   const watch =
-    getWatch()[selectedKey];
+    getWatch();
 
-  const date =
-    fromKey(selectedKey);
+  detail.innerHTML = `
 
-  const w =
-    mentalWeather(date);
+    <p>
+      症状：
+      ${
+        symptoms[selectedKey]
+        ?.join("、")
+        || "なし"
+      }
+    </p>
 
-  let watchHtml = "";
-
-  if(watch){
-
-    watchHtml = `
-      <div class="watch-box">
-
-        🌡️ 手首温度：
-        ${watch.temp ?? "--"}
-
-        <br>
-
-        ❤️ 心拍：
-        ${watch.heartRate ?? "--"}
-
-        <br>
-
-        👣 歩数：
-        ${watch.steps ?? "--"}
-
-        <br>
-
-        💤 睡眠：
-        ${watch.sleep ?? "--"}
-
-      </div>
-    `;
-  }
-
-  document.getElementById(
-    "dayDetail"
-  ).innerHTML = `
-
-    <strong>
-      ${jp(date)}
-      ${w.icon}
-      ${w.text}
-    </strong>
-
-    <br><br>
-
-    ${w.note}
-
-    <br><br>
-
-    症状：
-    ${
-      symptoms.length
-      ? symptoms.join(" / ")
-      : "記録なし"
-    }
-
-    ${watchHtml}
+    <pre>
+${
+JSON.stringify(
+  watch[selectedKey]
+  || {},
+  null,
+  2
+)
+}
+    </pre>
   `;
 }
 
-function renderStats(){
-
-  document.getElementById(
-    "stats"
-  ).innerHTML = `
-
-    平均周期：
-    ${avgCycle()}日
-
-    <br>
-
-    平均月経：
-    ${avgPeriod()}日
-
-    <br>
-
-    記録数：
-    ${getStarts().length}件
-  `;
-}
-
-async function syncToCloud(){
-
-  if(
-    typeof firebaseFns === "undefined" ||
-    typeof db === "undefined"
-  ){
-    return;
-  }
-
-  const data = {
-
-  periodStarts:getStarts(),
-  periodLengths:getLengths(),
-  symptoms:getSymptoms(),
-  watchData:getWatch(),
-
-  updatedAt:
-    new Date().toISOString()
-
-};
-
-  try{
-
-    await firebaseFns.setDoc(
-
-      firebaseFns.doc(
-        db,
-        "cycles",
-        "shared"
-      ),
-
-      data
-
-    );
-
-    console.log("同期完了☁️");
-
-  }
-
-  catch(e){
-
-    console.error(
-      "Firebase同期失敗",
-      e
-    );
-  }
-}
+/* =========================
+   actions
+========================= */
 
 function togglePeriod(){
 
-  let starts = getStarts();
+  let starts =
+    getStarts();
 
-  const lengths = getLengths();
+  const lengths =
+    getLengths();
 
   if(starts.includes(selectedKey)){
 
     starts =
-      starts.filter(s=>s!==selectedKey);
+      starts.filter(
+        s=>s!==selectedKey
+      );
 
     delete lengths[selectedKey];
   }
@@ -574,7 +641,9 @@ function toggleSymptom(symptom){
     getSymptoms();
 
   if(!symptoms[selectedKey]){
-    symptoms[selectedKey] = [];
+
+    symptoms[selectedKey] =
+      [];
   }
 
   if(
@@ -584,7 +653,9 @@ function toggleSymptom(symptom){
 
     symptoms[selectedKey] =
       symptoms[selectedKey]
-      .filter(s=>s!==symptom);
+      .filter(
+        s=>s!==symptom
+      );
   }
 
   else{
@@ -602,81 +673,23 @@ function toggleSymptom(symptom){
 
 function parseWatchText(text){
 
-  const data = {};
-
-  const lines =
-    text
-    .split(/\n|,/)
-    .map(v=>v.trim())
-    .filter(Boolean);
-
-  for(const line of lines){
-
-    const normalized =
-      line.replace(/[：=]/g,":");
-
-    const [k,...rest] =
-      normalized.split(":");
-
-    const val =
-      rest.join(":").trim();
-
-    const num =
-      Number(
-        (val.match(/-?\d+(\.\d+)?/) || [])[0]
-      );
-
-    if(/温度/.test(k)){
-      data.temp = num;
-    }
-
-    if(/心拍/.test(k)){
-      data.heartRate = num;
-    }
-
-    if(/歩数/.test(k)){
-      data.steps = num;
-    }
-
-    if(/睡眠/.test(k)){
-      data.sleep = num;
-    }
-  }
-
-  return data;
-}
-
-async function pasteWatch(){
-
-  try{
-
-    const text =
-      await navigator.clipboard.readText();
-
-    document.getElementById(
-      "watchInput"
-    ).value = text;
-  }
-
-  catch(e){
-
-    alert(
-      "Safariで貼り付け許可が必要かも！"
-    );
-  }
+  return {
+    raw:text
+  };
 }
 
 function saveWatch(){
 
   const text =
     document
-    .getElementById("watchInput")
+    .getElementById(
+      "watchInput"
+    )
     .value
     .trim();
 
   if(!text){
 
-    alert("空だよ！");
     return;
   }
 
@@ -693,107 +706,75 @@ function saveWatch(){
   render();
 }
 
+/* =========================
+   bind
+========================= */
+
+document
+.getElementById(
+  "prevMonth"
+)
+.onclick = ()=>{
+
+  current.setMonth(
+    current.getMonth()-1
+  );
+
+  render();
+};
+
+document
+.getElementById(
+  "nextMonth"
+)
+.onclick = ()=>{
+
+  current.setMonth(
+    current.getMonth()+1
+  );
+
+  render();
+};
+
+document
+.getElementById(
+  "periodToggle"
+)
+.onclick =
+  togglePeriod;
+
+document
+.querySelectorAll(
+  ".symptoms button"
+)
+.forEach(btn=>{
+
+  btn.onclick = ()=>{
+
+    toggleSymptom(
+      btn.dataset.symptom
+    );
+  };
+});
+
+document
+.getElementById(
+  "saveWatch"
+)
+.onclick =
+  saveWatch;
+
+/* =========================
+   render
+========================= */
+
 function render(){
 
   renderSummary();
+
   renderCalendar();
-  renderSelected();
-  renderStats();
 
-  const starts =
-    getStarts();
-
-  const btn =
-    document.getElementById(
-      "periodToggle"
-    );
-
-  if(
-    starts.includes(selectedKey)
-  ){
-
-    btn.textContent =
-      "✅ 生理記録済み";
-  }
-
-  else{
-
-    btn.textContent =
-      "🩸 生理を記録";
-  }
+  renderDetail();
 }
 
-document
-.getElementById("prevMonth")
-.addEventListener("click",()=>{
-
-  currentMonth--;
-
-  if(currentMonth<0){
-    currentMonth=11;
-    currentYear--;
-  }
-
-  renderCalendar();
-});
-
-document
-.getElementById("nextMonth")
-.addEventListener("click",()=>{
-
-  currentMonth++;
-
-  if(currentMonth>11){
-    currentMonth=0;
-    currentYear++;
-  }
-
-  renderCalendar();
-});
-
-document
-.getElementById("periodToggle")
-.addEventListener(
-  "click",
-  togglePeriod
-);
-
-document
-.querySelectorAll("[data-symptom]")
-.forEach(btn=>{
-
-  btn.addEventListener(
-    "click",
-    ()=>toggleSymptom(btn.dataset.symptom)
-  );
-});
-
-document
-.getElementById("pasteWatch")
-?.addEventListener(
-  "click",
-  pasteWatch
-);
-
-document
-.getElementById("saveWatch")
-?.addEventListener(
-  "click",
-  saveWatch
-);
-
-document
-.getElementById("resetSeed")
-?.addEventListener("click",()=>{
-
-  if(confirm("初期データに戻す？")){
-
-    localStorage.clear();
-
-    init();
-    render();
-  }
-});
-
-init();
 render();
