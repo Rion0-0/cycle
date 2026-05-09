@@ -485,21 +485,41 @@ function renderCalendar(){
       }
     }
 
-    if(p){
+    for(let i=0;i<6;i++){
 
-      if(
-        date >= p.fertileStart &&
-        date <= p.fertileEnd
-      ){
-        cls += " fertile";
-      }
+  const fp =
+    basePredictionFrom(
+      lastStart(),
+      i
+    );
 
-      if(
-        key === toKey(p.ovulation)
-      ){
-        cls += " ovulation";
-      }
-    }
+  if(
+    date >= fp.next &&
+    date <= fp.nextEnd
+  ){
+    cls += " predicted";
+  }
+
+  if(
+    date >= fp.fertileStart &&
+    date <= fp.fertileEnd
+  ){
+    cls += " fertile";
+  }
+
+  if(
+    key === toKey(fp.ovulation)
+  ){
+    cls += " ovulation";
+  }
+
+  if(
+    date >= fp.pmsStart &&
+    date < fp.next
+  ){
+    cls += " pms";
+  }
+}
 
     if(symptoms[key]?.length){
       cls += " has-symptom";
