@@ -246,3 +246,19 @@ h1{
   background:#f5f8ff;
   line-height:1.8;
 }
+
+.day.predicted button{
+  background:#ffe3ef;
+}
+
+.day.fertile button{
+  background:#f6ecff;
+}
+
+.day.ovulation button{
+  border:2px solid #f7c873;
+}
+
+.day.pms button{
+  box-shadow:0 0 0 2px #d8d0dc inset;
+}
