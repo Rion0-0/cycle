@@ -307,37 +307,25 @@ function mentalWeather(date){
    firebase
 ========================= */
 
-async function syncToCloud(){
+async function syncToCloud() {
+  console.log("syncToCloud 呼ばれたよ☁️");
 
-  if(
-    typeof firebaseFns ===
-    "undefined"
-  ){
-    return;
+  try {
+    const data = {
+      periodStarts,
+      periodLengths,
+      watchLogs,
+      updatedAt: new Date().toISOString()
+    };
+
+    console.log("Firestoreに送るデータ:", data);
+
+    await db.collection("cycles").doc("shared").set(data);
+
+    console.log("同期完了☁️");
+  } catch (error) {
+    console.error("同期失敗🔥", error);
   }
-
-  const data = {
-
-    periodStarts:getStarts(),
-    periodLengths:getLengths(),
-    symptoms:getSymptoms(),
-    watchData:getWatch(),
-
-    updatedAt:
-      new Date()
-      .toISOString()
-  };
-
-  await firebaseFns.setDoc(
-
-    firebaseFns.doc(
-      db,
-      "cycles",
-      "shared"
-    ),
-
-    data
-  );
 }
 
 /* =========================
