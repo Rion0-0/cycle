@@ -3,62 +3,34 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cycle Share</title>
+  <title>Cycle Partner</title>
   <link rel="stylesheet" href="style.css" />
 </head>
-
 <body>
-  <div class="app">
-    <header class="hero">
-      <p class="eyebrow">partner view</p>
-      <h1>Cycle Share</h1>
-    </header>
 
-    <section class="card overview">
-      <div class="stat big">
-        <span>次の生理予定</span>
-        <strong id="nextPeriod">--</strong>
-        <small id="nextRange">--</small>
-      </div>
-
-      <div class="stat">
-        <span>排卵予測</span>
-        <strong id="ovulation">--</strong>
-      </div>
-
-      <div class="stat weather">
-        <span>メンタル天気</span>
-        <strong id="mentalWeather">--</strong>
-        <small id="weatherNote">--</small>
-        <p id="updatedAt" class="updated">最終更新：--</p>
-      </div>
-    </section>
+  <main class="app">
+    <h1>Partner View</h1>
 
     <section class="card">
-      <div class="calendar-head">
+      <div class="month-nav">
         <button id="prevMonth">‹</button>
-        <h2 id="monthLabel">--</h2>
+        <h2 id="monthLabel"></h2>
         <button id="nextMonth">›</button>
-      </div>
-
-      <div class="legend">
-        <span><i class="dot period"></i>生理</span>
-        <span><i class="dot predicted"></i>予測</span>
-        <span><i class="dot ovulation"></i>排卵</span>
-        <span><i class="dot fertile"></i>妊娠可能性</span>
-        <span><i class="dot symptom"></i>症状</span>
-        <span><i class="dot watch"></i>Watch</span>
-      </div>
-
-      <div class="weekdays">
-        <span>日</span><span>月</span><span>火</span>
-        <span>水</span><span>木</span><span>金</span><span>土</span>
       </div>
 
       <div id="calendar" class="calendar"></div>
     </section>
-  </div>
 
-  <script type="module" src="partner.js"></script>
+    <section class="card">
+      <h2>共有メモ</h2>
+      <p>次の生理開始：<span id="nextPeriod">未記録</span></p>
+      <p>生理期間：<span id="nextRange">未記録</span></p>
+      <p>排卵予測：<span id="ovulation">未記録</span></p>
+      <p>メンタル天気：<span id="mentalWeather">☀️安定</span></p>
+      <p id="updatedAt"></p>
+    </section>
+  </main>
+
+  <script type="module" src="./partner.js"></script>
 </body>
 </html>
