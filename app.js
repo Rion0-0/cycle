@@ -327,6 +327,33 @@ function markPeriodEnd() {
   render();
 }
 
+function cancelPeriod() {
+  const starts = getStarts();
+  const lengths = getLengths();
+
+  const newStarts = starts.filter(startKey => {
+    const startDate = fromKey(startKey);
+    const length = Number(lengths[startKey] || 5);
+    const endDate = addDays(startDate, length - 1);
+    const selectedDate = fromKey(selectedKey);
+
+    const isInsidePeriod =
+      selectedDate >= startDate && selectedDate <= endDate;
+
+    if (isInsidePeriod) {
+      delete lengths[startKey];
+      return false;
+    }
+
+    return true;
+  });
+
+  setStarts(newStarts);
+  setLengths(lengths);
+
+  syncToCloud();
+  render();
+}
 function toggleSymptom(symptom) {
   const symptoms = getSymptoms();
 
