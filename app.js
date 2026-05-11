@@ -1,221 +1,131 @@
-let current =
-  new Date();
+/* =========================
+   init
+========================= */
 
+let current = new Date();
 current.setDate(1);
 
-let selected =
-  new Date();
-
-let selectedKey =
-  toKey(selected);
+let selected = new Date();
+let selectedKey = toKey(selected);
 
 /* =========================
    storage
 ========================= */
 
-function getStarts(){
-
-  return JSON.parse(
-    localStorage.getItem(
-      "periodStarts"
-    ) || "[]"
-  );
+function getStarts() {
+  return JSON.parse(localStorage.getItem("periodStarts") || "[]");
 }
 
-function setStarts(v){
-
-  localStorage.setItem(
-    "periodStarts",
-    JSON.stringify(v)
-  );
+function setStarts(v) {
+  localStorage.setItem("periodStarts", JSON.stringify(v));
 }
 
-function getLengths(){
-
-  return JSON.parse(
-    localStorage.getItem(
-      "periodLengths"
-    ) || "{}"
-  );
+function getLengths() {
+  return JSON.parse(localStorage.getItem("periodLengths") || "{}");
 }
 
-function setLengths(v){
-
-  localStorage.setItem(
-    "periodLengths",
-    JSON.stringify(v)
-  );
+function setLengths(v) {
+  localStorage.setItem("periodLengths", JSON.stringify(v));
 }
 
-function getSymptoms(){
-
-  return JSON.parse(
-    localStorage.getItem(
-      "symptoms"
-    ) || "{}"
-  );
+function getSymptoms() {
+  return JSON.parse(localStorage.getItem("symptoms") || "{}");
 }
 
-function setSymptoms(v){
-
-  localStorage.setItem(
-    "symptoms",
-    JSON.stringify(v)
-  );
+function setSymptoms(v) {
+  localStorage.setItem("symptoms", JSON.stringify(v));
 }
 
-function getWatch(){
-
-  return JSON.parse(
-    localStorage.getItem(
-      "watchData"
-    ) || "{}"
-  );
+function getWatch() {
+  return JSON.parse(localStorage.getItem("watchData") || "{}");
 }
 
-function setWatch(v){
-
-  localStorage.setItem(
-    "watchData",
-    JSON.stringify(v)
-  );
+function setWatch(v) {
+  localStorage.setItem("watchData", JSON.stringify(v));
 }
 
 /* =========================
    util
 ========================= */
 
-function pad(n){
-
-  return String(n)
-    .padStart(2,"0");
+function pad(n) {
+  return String(n).padStart(2, "0");
 }
 
-function toKey(d){
-
-  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+function toKey(d) {
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
-function fromKey(k){
-
-  const [y,m,d] =
-    k.split("-");
-
-  return new Date(y,m-1,d);
+function fromKey(k) {
+  const [y, m, d] = k.split("-").map(Number);
+  return new Date(y, m - 1, d);
 }
 
-function addDays(d,n){
-
-  const x =
-    new Date(d);
-
-  x.setDate(
-    x.getDate()+n
-  );
-
+function addDays(d, n) {
+  const x = new Date(d);
+  x.setDate(x.getDate() + n);
   return x;
 }
 
-function jp(d){
-
-  return `${d.getMonth()+1}/${d.getDate()}`;
+function jp(d) {
+  return `${d.getMonth() + 1}/${d.getDate()}`;
 }
 
 /* =========================
    cycle
 ========================= */
 
-function cycleDiffs(){
-
-  const starts =
-    getStarts()
+function cycleDiffs() {
+  const starts = getStarts()
     .map(fromKey)
-    .sort((a,b)=>a-b);
+    .sort((a, b) => a - b);
 
   const arr = [];
 
-  for(let i=1;i<starts.length;i++){
-
-    arr.push(
-      Math.round(
-        (starts[i]-starts[i-1])
-        /86400000
-      )
-    );
+  for (let i = 1; i < starts.length; i++) {
+    arr.push(Math.round((starts[i] - starts[i - 1]) / 86400000));
   }
 
   return arr;
 }
 
-function avgCycle(){
+function avgCycle() {
+  const arr = cycleDiffs();
 
-  const arr =
-    cycleDiffs();
-
-  if(!arr.length){
+  if (!arr.length) {
     return 28;
   }
 
-  return Math.round(
-    arr.reduce((a,b)=>a+b,0)
-    /arr.length
-  );
+  return Math.round(arr.reduce((a, b) => a + b, 0) / arr.length);
 }
 
-function avgPeriod(){
+function avgPeriod() {
+  const lengths = Object.values(getLengths()).map(Number);
 
-  const lengths =
-    Object.values(
-      getLengths()
-    );
-
-  if(!lengths.length){
+  if (!lengths.length) {
     return 5;
   }
 
-  return Math.round(
-    lengths.reduce((a,b)=>a+b,0)
-    /lengths.length
-  );
+  return Math.round(lengths.reduce((a, b) => a + b, 0) / lengths.length);
 }
 
-function lastStart(){
-
-  const starts =
-    getStarts()
-    .sort();
-
+function lastStart() {
+  const starts = getStarts().sort();
   return starts.at(-1);
 }
 
-function predictionFrom(startKey){
+function predictionFrom(startKey) {
+  const cycle = avgCycle();
+  const period = avgPeriod();
+  const start = fromKey(startKey);
 
-  const cycle =
-    avgCycle();
-
-  const period =
-    avgPeriod();
-
-  const start =
-    fromKey(startKey);
-
-  const next =
-    addDays(start,cycle);
-
-  const nextEnd =
-    addDays(next,period-1);
-
-  const ovulation =
-    addDays(next,-14);
-
-  const fertileStart =
-    addDays(ovulation,-5);
-
-  const fertileEnd =
-    addDays(ovulation,+1);
+  const next = addDays(start, cycle);
+  const nextEnd = addDays(next, period - 1);
+  const ovulation = addDays(next, -14);
+  const fertileStart = addDays(ovulation, -5);
+  const fertileEnd = addDays(ovulation, 1);
 
   return {
-
     next,
     nextEnd,
     ovulation,
@@ -224,82 +134,60 @@ function predictionFrom(startKey){
   };
 }
 
-function predictions(){
+function predictions() {
+  const start = lastStart();
 
-  const start =
-    lastStart();
-
-  if(!start){
+  if (!start) {
     return [];
   }
 
   const arr = [];
+  let currentStart = start;
 
-  let currentStart =
-    start;
-
-  for(let i=0;i<6;i++){
-
-    const p =
-      predictionFrom(currentStart);
-
+  for (let i = 0; i < 6; i++) {
+    const p = predictionFrom(currentStart);
     arr.push(p);
-
-    currentStart =
-      toKey(p.next);
+    currentStart = toKey(p.next);
   }
 
   return arr;
 }
 
 /* =========================
-   weather
+   mental weather
 ========================= */
 
-function mentalWeather(date){
+function mentalWeather(date) {
+  const start = lastStart();
 
-  const start =
-    lastStart();
-
-  if(!start){
-
+  if (!start) {
     return {
-      icon:"☀️",
-      label:"安定"
+      icon: "☀️",
+      label: "安定"
     };
   }
 
-  const diff =
-    Math.round(
-      (date-fromKey(start))
-      /86400000
-    );
+  const diff = Math.round((date - fromKey(start)) / 86400000);
+  const cycle = avgCycle();
+  const day = ((diff % cycle) + cycle) % cycle;
 
-  const cycle =
-    avgCycle();
-
-  const day =
-    ((diff%cycle)+cycle)%cycle;
-
-  if(day>=cycle-7){
-
+  if (day >= cycle - 7) {
     return {
-      icon:"⛈️",
-      label:"PMS注意"
+      icon: "⛈️",
+      label: "PMS注意"
     };
   }
 
-  if(day<=4){
-
+  if (day <= 4) {
     return {
-      icon:"🌧️",
-      label:"ゆったり"
+      icon: "🌧️",
+      label: "ゆったり"
     };
   }
 
   return {
-    icon:"☀️",
-    label:"比較的安定"
+    icon: "☀️",
+    label: "比較的安定"
   };
 }
 
@@ -311,10 +199,15 @@ async function syncToCloud() {
   console.log("syncToCloud 呼ばれたよ☁️");
 
   try {
+    if (typeof db === "undefined") {
+      throw new Error("Firebase db が定義されていません");
+    }
+
     const data = {
-      periodStarts,
-      periodLengths,
-      watchLogs,
+      periodStarts: getStarts(),
+      periodLengths: getLengths(),
+      symptoms: getSymptoms(),
+      watchData: getWatch(),
       updatedAt: new Date().toISOString()
     };
 
@@ -332,84 +225,34 @@ async function syncToCloud() {
    summary
 ========================= */
 
-function renderSummary(){
+function renderSummary() {
+  const p = predictions()[0];
 
-  const p =
-    predictions()[0];
+  const nextPeriodEl = document.getElementById("nextPeriod");
+  const nextRangeEl = document.getElementById("nextRange");
+  const ovulationEl = document.getElementById("ovulation");
 
-  if(!p){
-    return;
+  if (p) {
+    if (nextPeriodEl) nextPeriodEl.textContent = jp(p.next);
+    if (nextRangeEl) nextRangeEl.textContent = `${jp(p.next)}〜${jp(p.nextEnd)}`;
+    if (ovulationEl) ovulationEl.textContent = jp(p.ovulation);
   }
 
-  const nextPeriodEl =
-    document.getElementById(
-      "nextPeriod"
-    );
+  const w = mentalWeather(new Date());
 
-  if(nextPeriodEl){
-
-    nextPeriodEl.textContent =
-      jp(p.next);
+  const weatherEl = document.getElementById("mentalWeather");
+  if (weatherEl) {
+    weatherEl.textContent = `${w.icon}${w.label}`;
   }
 
-  const nextRangeEl =
-    document.getElementById(
-      "nextRange"
-    );
-
-  if(nextRangeEl){
-
-    nextRangeEl.textContent =
-      `${jp(p.next)}〜${jp(p.nextEnd)}`;
+  const weatherNoteEl = document.getElementById("weatherNote");
+  if (weatherNoteEl) {
+    weatherNoteEl.textContent = w.label;
   }
 
-  const ovulationEl =
-    document.getElementById(
-      "ovulation"
-    );
-
-  if(ovulationEl){
-
-    ovulationEl.textContent =
-      jp(p.ovulation);
-  }
-
-  const w =
-    mentalWeather(
-      new Date()
-    );
-
-  const weatherEl =
-    document.getElementById(
-      "mentalWeather"
-    );
-
-  if(weatherEl){
-
-    weatherEl.textContent =
-      `${w.icon}${w.label}`;
-  }
-
-  const weatherNoteEl =
-    document.getElementById(
-      "weatherNote"
-    );
-
-  if(weatherNoteEl){
-
-    weatherNoteEl.textContent =
-      w.label;
-  }
-
-  const updatedEl =
-    document.getElementById(
-      "updatedAt"
-    );
-
-  if(updatedEl){
-
-    updatedEl.textContent =
-      `最終更新：${new Date().toLocaleString("ja-JP")}`;
+  const updatedEl = document.getElementById("updatedAt");
+  if (updatedEl) {
+    updatedEl.textContent = `最終更新：${new Date().toLocaleString("ja-JP")}`;
   }
 }
 
@@ -417,185 +260,92 @@ function renderSummary(){
    calendar
 ========================= */
 
-function renderCalendar(){
+function renderCalendar() {
+  const cal = document.getElementById("calendar");
 
-  const cal =
-    document.getElementById(
-      "calendar"
-    );
-
-  if(!cal){
+  if (!cal) {
     return;
   }
 
   cal.innerHTML = "";
 
-  const monthLabel =
-    document.getElementById(
-      "monthLabel"
-    );
+  const monthLabel = document.getElementById("monthLabel");
 
-  if(monthLabel){
-
-    monthLabel.textContent =
-      `${current.getFullYear()}年 ${current.getMonth()+1}月`;
+  if (monthLabel) {
+    monthLabel.textContent = `${current.getFullYear()}年 ${current.getMonth() + 1}月`;
   }
 
-  const firstDay =
-    new Date(
-      current.getFullYear(),
-      current.getMonth(),
-      1
-    ).getDay();
+  const firstDay = new Date(
+    current.getFullYear(),
+    current.getMonth(),
+    1
+  ).getDay();
 
-  const lastDate =
-    new Date(
-      current.getFullYear(),
-      current.getMonth()+1,
-      0
-    ).getDate();
+  const lastDate = new Date(
+    current.getFullYear(),
+    current.getMonth() + 1,
+    0
+  ).getDate();
 
-  for(let i=0;i<firstDay;i++){
-
-    const empty =
-      document.createElement(
-        "div"
-      );
-
-    empty.className =
-      "day empty";
-
+  for (let i = 0; i < firstDay; i++) {
+    const empty = document.createElement("div");
+    empty.className = "day empty";
     cal.appendChild(empty);
   }
 
-  for(let d=1;d<=lastDate;d++){
+  const starts = getStarts();
+  const lengths = getLengths();
+  const symptoms = getSymptoms();
+  const watch = getWatch();
+  const pred = predictions();
 
-    const date =
-      new Date(
-        current.getFullYear(),
-        current.getMonth(),
-        d
-      );
+  for (let d = 1; d <= lastDate; d++) {
+    const date = new Date(current.getFullYear(), current.getMonth(), d);
+    const key = toKey(date);
 
-    const key =
-      toKey(date);
+    const cell = document.createElement("button");
+    cell.className = "day";
+    cell.innerHTML = `<div class="day-number">${d}</div>`;
 
-    const cell =
-      document.createElement(
-        "button"
-      );
-
-    cell.className =
-      "day";
-
-    cell.innerHTML =
-      `<div class="day-number">${d}</div>`;
-
-    if(key===selectedKey){
-
-      cell.classList.add(
-        "selected"
-      );
+    if (key === selectedKey) {
+      cell.classList.add("selected");
     }
 
-  const starts =
-  getStarts();
+    for (const startKey of starts) {
+      const startDate = fromKey(startKey);
+      const length = Number(lengths[startKey] || 5);
+      const endDate = addDays(startDate, length - 1);
 
-const lengths =
-  getLengths();
-
-for(const startKey of starts){
-
-  const startDate =
-    fromKey(startKey);
-
-  const length =
-    lengths[startKey] || 5;
-
-  const endDate =
-    addDays(
-      startDate,
-      length - 1
-    );
-
-  if(
-    date >= startDate &&
-    date <= endDate
-  ){
-
-    cell.classList.add(
-      "period"
-    );
-  }
-}
-    for(const p of predictions()){
-
-      if(
-        key>=toKey(p.next)
-        &&
-        key<=toKey(p.nextEnd)
-      ){
-
-        cell.classList.add(
-          "predicted"
-        );
-      }
-
-      if(
-        key===toKey(
-          p.ovulation
-        )
-      ){
-
-        cell.classList.add(
-          "ovulation"
-        );
-      }
-
-      if(
-        key>=toKey(
-          p.fertileStart
-        )
-        &&
-        key<=toKey(
-          p.fertileEnd
-        )
-      ){
-
-        cell.classList.add(
-          "fertile"
-        );
+      if (date >= startDate && date <= endDate) {
+        cell.classList.add("period");
       }
     }
 
-    const symptoms =
-      getSymptoms();
+    for (const p of pred) {
+      if (key >= toKey(p.next) && key <= toKey(p.nextEnd)) {
+        cell.classList.add("predicted");
+      }
 
-    if(symptoms[key]){
+      if (key === toKey(p.ovulation)) {
+        cell.classList.add("ovulation");
+      }
 
-      cell.classList.add(
-        "has-symptom"
-      );
+      if (key >= toKey(p.fertileStart) && key <= toKey(p.fertileEnd)) {
+        cell.classList.add("fertile");
+      }
     }
 
-    const watch =
-      getWatch();
-
-    if(watch[key]){
-
-      cell.classList.add(
-        "has-watch"
-      );
+    if (symptoms[key]) {
+      cell.classList.add("has-symptom");
     }
 
-    cell.onclick = ()=>{
+    if (watch[key]) {
+      cell.classList.add("has-watch");
+    }
 
-      selected =
-        date;
-
-      selectedKey =
-        key;
-
+    cell.onclick = () => {
+      selected = date;
+      selectedKey = key;
       render();
     };
 
@@ -607,107 +357,67 @@ for(const startKey of starts){
    detail
 ========================= */
 
-function renderDetail(){
+function renderDetail() {
+  const label = document.getElementById("selectedLabel");
 
-  const label =
-    document.getElementById(
-      "selectedLabel"
-    );
-
-  if(label){
-
-    label.textContent =
-      selectedKey;
+  if (label) {
+    label.textContent = selectedKey;
   }
 
-  const detail =
-    document.getElementById(
-      "dayDetail"
-    );
+  const detail = document.getElementById("dayDetail");
 
-  if(!detail){
+  if (!detail) {
     return;
   }
 
-  const symptoms =
-    getSymptoms();
-
-  const watch =
-    getWatch();
+  const symptoms = getSymptoms();
+  const watch = getWatch();
 
   detail.innerHTML = `
-
     <p>
       症状：
-      ${
-        symptoms[selectedKey]
-        ?.join("、 ")
-        || "なし"
-      }
+      ${symptoms[selectedKey]?.join("、 ") || "なし"}
     </p>
 
-    <p>
-      Watch：
-    </p>
+    <p>Watch：</p>
 
-    <pre>
-${
-  watch[selectedKey]
-  ? JSON.stringify(
-      watch[selectedKey],
-      null,
-      2
-    )
-  : "記録なし"
-}
-    </pre>
-
+    <pre>${
+      watch[selectedKey]
+        ? JSON.stringify(watch[selectedKey], null, 2)
+        : "記録なし"
+    }</pre>
   `;
 }
+
 /* =========================
    stats
 ========================= */
 
-function renderStats(){
+function renderStats() {
+  const stats = document.getElementById("stats");
 
-  const stats =
-    document.getElementById(
-      "stats"
-    );
-
-  if(!stats){
+  if (!stats) {
     return;
   }
 
   stats.innerHTML = `
-
-    <p>
-      平均周期：
-      ${avgCycle()}日
-    </p>
-
-    <p>
-      平均生理期間：
-      ${avgPeriod()}日
-    </p>
-
-    <p>
-      記録回数：
-      ${getStarts().length}回
-    </p>
-
+    <p>平均周期：${avgCycle()}日</p>
+    <p>平均生理期間：${avgPeriod()}日</p>
+    <p>記録回数：${getStarts().length}回</p>
   `;
 }
+
 /* =========================
    actions
 ========================= */
 
-function markPeriodStart(){
-  let starts = getStarts();
+function markPeriodStart() {
+  const starts = getStarts();
   const lengths = getLengths();
 
-  if(!starts.includes(selectedKey)){
+  if (!starts.includes(selectedKey)) {
     starts.push(selectedKey);
+    starts.sort();
     lengths[selectedKey] = avgPeriod();
   }
 
@@ -718,28 +428,27 @@ function markPeriodStart(){
   render();
 }
 
-function markPeriodEnd(){
+function markPeriodEnd() {
   const starts = getStarts().sort();
 
-  if(!starts.length){
+  if (!starts.length) {
     alert("先に生理開始日を記録してね！");
     return;
   }
 
-  const lastStart = starts[starts.length - 1];
-  const startDate = fromKey(lastStart);
+  const last = starts[starts.length - 1];
+  const startDate = fromKey(last);
   const endDate = fromKey(selectedKey);
 
-  if(endDate < startDate){
+  if (endDate < startDate) {
     alert("終了日は開始日より後の日付を選んでね！");
     return;
   }
 
-  const length =
-    Math.round((endDate - startDate) / 86400000) + 1;
+  const length = Math.round((endDate - startDate) / 86400000) + 1;
 
   const lengths = getLengths();
-  lengths[lastStart] = length;
+  lengths[last] = length;
 
   setLengths(lengths);
 
@@ -747,77 +456,69 @@ function markPeriodEnd(){
   render();
 }
 
-function toggleSymptom(symptom){
+function toggleSymptom(symptom) {
+  const symptoms = getSymptoms();
 
-  const symptoms =
-    getSymptoms();
-
-  if(!symptoms[selectedKey]){
-
-    symptoms[selectedKey] =
-      [];
+  if (!symptoms[selectedKey]) {
+    symptoms[selectedKey] = [];
   }
 
-  if(
-    symptoms[selectedKey]
-    .includes(symptom)
-  ){
+  if (symptoms[selectedKey].includes(symptom)) {
+    symptoms[selectedKey] = symptoms[selectedKey].filter(s => s !== symptom);
 
-    symptoms[selectedKey] =
-      symptoms[selectedKey]
-      .filter(
-        s=>s!==symptom
-      );
-  }
-
-  else{
-
-    symptoms[selectedKey]
-    .push(symptom);
+    if (!symptoms[selectedKey].length) {
+      delete symptoms[selectedKey];
+    }
+  } else {
+    symptoms[selectedKey].push(symptom);
   }
 
   setSymptoms(symptoms);
 
   syncToCloud();
-
   render();
 }
 
-function parseWatchText(text){
-
-  return {
-    raw:text
+function parseWatchText(text) {
+  const lines = text.split("\n").map(line => line.trim()).filter(Boolean);
+  const data = {
+    raw: text
   };
+
+  for (const line of lines) {
+    const [key, value] = line.split(":");
+
+    if (!key || value === undefined) {
+      continue;
+    }
+
+    data[key.trim()] = value.trim();
+  }
+
+  return data;
 }
 
-function saveWatch(){
+function saveWatch() {
+  const input = document.getElementById("watchInput");
 
-  const input =
-    document.getElementById(
-      "watchInput"
-    );
-
-  if(!input){
+  if (!input) {
     return;
   }
 
-  const text =
-    input.value.trim();
+  const text = input.value.trim();
 
-  if(!text){
+  if (!text) {
     return;
   }
 
-  const watch =
-    getWatch();
-
-  watch[selectedKey] =
-    parseWatchText(text);
+  const watch = getWatch();
+  watch[selectedKey] = parseWatchText(text);
 
   setWatch(watch);
 
-  syncToCloud();
+  input.value = "";
 
+  syncToCloud();
   render();
 }
 
@@ -825,94 +526,57 @@ function saveWatch(){
    bind
 ========================= */
 
-const prevBtn =
-  document.getElementById(
-    "prevMonth"
-  );
+const prevBtn = document.getElementById("prevMonth");
 
-if(prevBtn){
-
-  prevBtn.onclick = ()=>{
-
-    current.setMonth(
-      current.getMonth()-1
-    );
-
+if (prevBtn) {
+  prevBtn.onclick = () => {
+    current.setMonth(current.getMonth() - 1);
     render();
   };
 }
 
-const nextBtn =
-  document.getElementById(
-    "nextMonth"
-  );
+const nextBtn = document.getElementById("nextMonth");
 
-if(nextBtn){
-
-  nextBtn.onclick = ()=>{
-
-    current.setMonth(
-      current.getMonth()+1
-    );
-
+if (nextBtn) {
+  nextBtn.onclick = () => {
+    current.setMonth(current.getMonth() + 1);
     render();
   };
 }
 
-const periodStartBtn =
-  document.getElementById("periodStartBtn");
+const periodStartBtn = document.getElementById("periodStartBtn");
 
-if(periodStartBtn){
+if (periodStartBtn) {
   periodStartBtn.onclick = markPeriodStart;
 }
 
-const periodEndBtn =
-  document.getElementById("periodEndBtn");
+const periodEndBtn = document.getElementById("periodEndBtn");
 
-if(periodEndBtn){
+if (periodEndBtn) {
   periodEndBtn.onclick = markPeriodEnd;
 }
 
-document
-.querySelectorAll(
-  ".symptoms button"
-)
-.forEach(btn=>{
-
-  btn.onclick = ()=>{
-
-    toggleSymptom(
-      btn.dataset.symptom
-    );
+document.querySelectorAll(".symptoms button").forEach(btn => {
+  btn.onclick = () => {
+    toggleSymptom(btn.dataset.symptom);
   };
 });
 
-const saveWatchBtn =
-  document.getElementById(
-    "saveWatch"
-  );
+const saveWatchBtn = document.getElementById("saveWatch");
 
-if(saveWatchBtn){
-
-  saveWatchBtn.onclick =
-    saveWatch;
+if (saveWatchBtn) {
+  saveWatchBtn.onclick = saveWatch;
 }
 
 /* =========================
    render
 ========================= */
 
-function render(){
-
+function render() {
   renderSummary();
-
   renderCalendar();
-
   renderDetail();
-
   renderStats();
 }
-手首温度:36.03733062744141
-心拍:62
-睡眠:
-歩数:32
+
+render();
