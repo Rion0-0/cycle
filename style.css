@@ -266,3 +266,41 @@ pre {
     min-height: 120px;
   }
 }
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 20px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  font-size: 14px;
+  color: #6b5565;
+}
+
+.legend-color {
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  border: 2px solid rgba(0,0,0,0.05);
+}
+
+.legend-color.period {
+  background: #f8c6d7;
+}
+
+.legend-color.predicted {
+  background: #fff3b0;
+}
+
+.legend-color.ovulation {
+  background: #ffd59e;
+}
+
+.legend-color.fertile {
+  background: #fff8dc;
+}
