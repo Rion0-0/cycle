@@ -411,6 +411,10 @@ function bindEvents() {
   document.querySelectorAll(".symptoms button").forEach(btn => {
     btn.onclick = () => toggleSymptom(btn.dataset.symptom);
   });
+  const periodCancelBtn = document.getElementById("periodCancelBtn");
+if (periodCancelBtn) {
+  periodCancelBtn.onclick = cancelPeriod;
+}
 }
 
 function render() {
