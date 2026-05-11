@@ -14,7 +14,8 @@ body {
   color: #5f475b;
 
   background:
-    radial-gradient(circle at top left,
+    radial-gradient(
+      circle at top left,
       #ffe1ef 0,
       transparent 35%
     ),
@@ -117,10 +118,12 @@ h2 {
 ========================= */
 
 .calendar {
+  width: 100%;
+
   display: grid;
 
   grid-template-columns:
-    repeat(7,1fr);
+    repeat(7, minmax(0, 1fr));
 
   gap:
     clamp(8px,1.5vw,14px);
@@ -128,6 +131,8 @@ h2 {
 
 .day {
   position: relative;
+
+  min-width: 0;
 
   min-height: 92px;
 
@@ -472,27 +477,40 @@ pre {
 
   .app {
     padding:
-      32px
-      14px
-      56px;
+      24px
+      10px
+      48px;
+
+    overflow-x: hidden;
   }
 
   .card {
-    border-radius: 24px;
+    border-radius: 22px;
 
-    padding: 20px;
+    padding: 14px;
   }
 
   .calendar {
-    gap: 7px;
+    width: 100%;
+
+    grid-template-columns:
+      repeat(7, minmax(0, 1fr));
+
+    gap: 5px;
   }
 
   .day {
-    min-height: 46px;
+    min-width: 0;
 
-    border-radius: 14px;
+    min-height: auto;
 
-    font-size: 13px;
+    aspect-ratio: 1 / 1;
+
+    border-width: 1.5px;
+
+    border-radius: 12px;
+
+    font-size: 12px;
   }
 
   .day.has-symptom::after,
@@ -502,12 +520,19 @@ pre {
     font-size: 10px;
   }
 
+  .month-nav {
+    grid-template-columns:
+      40px
+      1fr
+      40px;
+  }
+
   button {
     padding:
-      10px
-      14px;
+      9px
+      12px;
 
-    font-size: 14px;
+    font-size: 13px;
   }
 
   textarea {
