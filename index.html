@@ -3,320 +3,56 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cycle Counter</title>
-
+  <title>Cycle App</title>
   <link rel="stylesheet" href="style.css" />
 </head>
-
 <body>
 
-  <div class="app">
-
-    <header class="hero">
-      <p class="eyebrow">
-        private cycle memo
-      </p>
-
-      <h1>Cycle Counter</h1>
-    </header>
-
-    <section class="card overview">
-
-      <div class="stat big">
-        <span>次の生理予定</span>
-
-        <strong id="nextPeriod">
-          --
-        </strong>
-
-        <small id="nextRange">
-          --
-        </small>
-      </div>
-
-      <div class="stat">
-        <span>排卵予測</span>
-
-        <strong id="ovulation">
-          --
-        </strong>
-      </div>
-
-<div class="stat weather">
-
-  <span>
-    メンタル天気予報
-  </span>
-
-  <strong id="mentalWeather">
-    --
-  </strong>
-
-  <small id="weatherNote">
-    --
-  </small>
-
-  <p id="updatedAt" class="updated">
-    最終更新：--
-  </p>
-
-</div>
-
-    </section>
+  <main class="app">
+    <h1>Cycle Log</h1>
 
     <section class="card">
-
-      <div class="calendar-head">
+      <div class="month-nav">
         <button id="prevMonth">‹</button>
-
-        <h2 id="monthLabel">--</h2>
-
+        <h2 id="monthLabel"></h2>
         <button id="nextMonth">›</button>
       </div>
 
-      <div class="legend">
-
-        <span>
-          <i class="dot period"></i>
-          生理
-        </span>
-
-        <span>
-          <i class="dot predicted"></i>
-          予測
-        </span>
-
-        <span>
-          <i class="dot ovulation"></i>
-          排卵
-        </span>
-
-        <span>
-          <i class="dot fertile"></i>
-          妊娠可能性
-        </span>
-
-        <span>
-          <i class="dot symptom"></i>
-          症状
-        </span>
-
-        <span>
-          <i class="dot watch"></i>
-          Watch
-        </span>
-
-      </div>
-
-      <div class="weekdays">
-
-        <span>日</span>
-        <span>月</span>
-        <span>火</span>
-        <span>水</span>
-        <span>木</span>
-        <span>金</span>
-        <span>土</span>
-
-      </div>
-
       <div id="calendar" class="calendar"></div>
-
     </section>
 
     <section class="card">
+      <h2 id="selectedLabel"></h2>
 
-      <h2>ワンタップ記録</h2>
-
-      <p class="hint">
-        カレンダーの日付をタップすると、
-        過去日にも記録できるよ。
-      </p>
-
-      <p class="selected">
-        選択中：
-        <strong id="selectedLabel">
-          今日
-        </strong>
-      </p>
-
-      <div class="button-row">
-  <button id="periodStartBtn" class="main-btn small">
-    🩸 生理開始
-  </button>
-
-  <button id="periodEndBtn" class="main-btn small">
-    🌙 生理終了
-  </button>
-</div>
-
-      <h3>症状</h3>
+      <div class="actions">
+        <button id="periodStartBtn">🩸 生理開始</button>
+        <button id="periodEndBtn">🌙 生理終了</button>
+      </div>
 
       <div class="symptoms">
-
-        <button data-symptom="頭痛">
-          🤕 頭痛
-        </button>
-
-        <button data-symptom="腹痛">
-          😣 腹痛
-        </button>
-
-        <button data-symptom="眠気">
-          😴 眠気
-        </button>
-
-        <button data-symptom="吐き気">
-          🤢 吐き気
-        </button>
-
-        <button data-symptom="胸の張り">
-          🫧 胸の張り
-        </button>
-
+        <button data-symptom="眠気">😴 眠気</button>
+        <button data-symptom="吐き気">🤢 吐き気</button>
+        <button data-symptom="胸の張り">🫧 胸の張り</button>
       </div>
 
+      <textarea id="watchInput" placeholder="Apple Watch記録を貼ってね"></textarea>
+      <button id="saveWatch">Watch記録を保存</button>
+
+      <div id="dayDetail"></div>
     </section>
 
     <section class="card">
-
-      <h2>
-        Apple Watch /
-        ヘルスケア貼り付け
-      </h2>
-
-      <p class="hint">
-        ショートカットで作った
-        今日の体調まとめを貼って保存。
-      </p>
-
-      <textarea
-        id="watchInput"
-        placeholder="例：
-睡眠: 5.5
-歩数: 3200
-心拍: 82
-メモ: ちょっとだるい"
-      ></textarea>
-
-      <div class="button-row">
-
-        <button
-          id="pasteWatch"
-          class="main-btn small"
-        >
-          クリップボードから貼る
-        </button>
-
-        <button
-          id="saveWatch"
-          class="main-btn small"
-        >
-          選択日に保存
-        </button>
-
-      </div>
-
+      <h2>予測</h2>
+      <p>次の生理開始：<span id="nextPeriod">未記録</span></p>
+      <p>生理期間：<span id="nextRange">未記録</span></p>
+      <p>排卵予測：<span id="ovulation">未記録</span></p>
+      <p>メンタル天気：<span id="mentalWeather">☀️安定</span></p>
+      <p id="updatedAt"></p>
     </section>
 
-    <section class="card">
+    <section id="stats" class="card"></section>
+  </main>
 
-      <h2>選択日の記録</h2>
-
-      <div
-        id="dayDetail"
-        class="day-detail"
-      >
-        --
-      </div>
-
-    </section>
-
-    <section class="card">
-
-      <h2>周期メモ</h2>
-
-      <div
-        id="stats"
-        class="stats"
-      ></div>
-
-      <button
-        id="resetSeed"
-        class="ghost"
-      >
-        初期データに戻す
-      </button>
-
-    </section>
-
-    <section class="card note">
-
-      <p>
-        ※ 排卵日・妊娠可能性・
-        メンタル天気予報は
-        簡易予測です。
-      </p>
-
-    </section>
-
-  </div>
-
-  <script type="module">
-
-    import {
-      initializeApp
-    }
-    from
-    "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
-
-    import {
-      getFirestore,
-      doc,
-      setDoc,
-      getDoc
-    }
-    from
-    "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
-
-    const firebaseConfig = {
-
-      apiKey:
-      "AIzaSyA8eQWqxpxfMG8LEQgssRzcMJbn93JA5zg",
-
-      authDomain:
-      "cycle-counter.firebaseapp.com",
-
-      projectId:
-      "cycle-counter",
-
-      storageBucket:
-      "cycle-counter.firebasestorage.app",
-
-      messagingSenderId:
-      "466749972992",
-
-      appId:
-      "1:466749972992:web:80de09778ad7926c28aee5"
-    };
-
-    const app =
-      initializeApp(firebaseConfig);
-
-    const db =
-      getFirestore(app);
-
-    window.db = db;
-
-    window.firebaseFns = {
-      doc,
-      setDoc,
-      getDoc
-    };
-
-  </script>
-
-  <script src="app.js"></script>
-
+  <script type="module" src="./app.js"></script>
 </body>
 </html>
